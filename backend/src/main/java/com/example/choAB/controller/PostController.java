@@ -29,6 +29,7 @@ public class PostController{
         }
     }
 
+
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> getAllPosts(){
         try{
