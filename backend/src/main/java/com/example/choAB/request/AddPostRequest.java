@@ -13,4 +13,6 @@ public class AddPostRequest {
     private String description;
     private BigDecimal price;
     private Category category;
+
+
 }
