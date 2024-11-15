@@ -16,9 +16,11 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class Post {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
     private String title;
     private String description;
     private BigDecimal price;
@@ -46,6 +48,7 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
+
     public Post(String title, String description, BigDecimal price, LocalDateTime post_date, boolean is_priority, Category category) {
         this.title = title;
         this.description = description;
@@ -54,4 +57,7 @@ public class Post {
         this.is_priority = is_priority;
         this.category = category;
     }
+
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Vehicle vehicle;
 }
