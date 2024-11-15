@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import org.hibernate.annotations.NaturalId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -19,8 +19,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+
+    @NaturalId
     private String email;
-    private String address;
+    private String password;
+
     private boolean is_verified;
     private LocalDateTime last_login;
     private LocalDateTime register_date;
@@ -69,4 +72,10 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "conversation_id", referencedColumnName = "id") // Khoá ngoại trỏ tới bảng Conversations
     )
     private Set<Conversation> conversations = new HashSet<>();
+
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}) //role it phu thuoc vao user , de neu user bi xoa thi role ko bi xoa theo
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    private Collection<Role> roles = new HashSet<>();
 }
