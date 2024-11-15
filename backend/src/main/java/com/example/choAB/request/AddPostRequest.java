@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Data
 public class AddPostRequest {
     private Long id;
+
     private String title;
     private String description;
     private BigDecimal price;

@@ -9,6 +9,7 @@ import com.example.choAB.service.post.IPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 public class PostController{
     private final IPostService postService;
 
+    @PreAuthorize(value = "hasRole('ROLE_USER')")
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addPost(@RequestBody AddPostRequest request){
         try{
@@ -79,6 +81,7 @@ public class PostController{
         }
     }
 
+    @PreAuthorize(value = "hasRole('ROLE_USER')")
     @PutMapping("/post/{id}/update")
     public ResponseEntity<ApiResponse> updatePost(@RequestBody  UpdatePostRequest request,@PathVariable Long id){
         try {
