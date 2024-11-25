@@ -1,13 +1,18 @@
 package com.example.choAB.service.post;
 
+import com.example.choAB.dto.PostDTO;
+import com.example.choAB.dto.VehicleDTO;
 import com.example.choAB.exception.ResourceNotFoundException;
 import com.example.choAB.model.Category;
 import com.example.choAB.model.Post;
+import com.example.choAB.model.Vehicle;
 import com.example.choAB.repository.CategoryRepository;
 import com.example.choAB.repository.PostRepository;
+import com.example.choAB.repository.VehicleRepository;
 import com.example.choAB.request.AddPostRequest;
 import com.example.choAB.request.UpdatePostRequest;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,6 +25,11 @@ public class PostService implements IPostService{
     private final PostRepository postRepository;
 
     private final CategoryRepository categoryRepository;
+
+    private final VehicleRepository vehicleRepository;
+
+    private final ModelMapper modelMapper;
+
     @Override
     public Post addPost(AddPostRequest request) {
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
@@ -28,18 +38,37 @@ public class PostService implements IPostService{
                     return categoryRepository.save(newCategory);
                 });
 
-        request.setCategory(category);
-        return postRepository.save(createPost(request, category));
+        Post post = createPost(request, category);
+
+        postRepository.save(post);
+
+        if(category.getName().equals("Xe Co")){
+                    Vehicle vehicle = new Vehicle(
+                    request.getVehicle().getManufacturer(),
+                    request.getVehicle().getYear(),
+                    request.getVehicle().getFuelType(),
+                    request.getVehicle().getOrigin(),
+                    request.getVehicle().getLicensePlate(),
+                    request.getVehicle().getColor(),
+                    request.getVehicle().getMileage(),
+                    post
+                    );
+                    vehicleRepository.save(vehicle);
+                    post.setVehicle(vehicle);
+        }
+        return post;
     }
     private Post createPost(AddPostRequest request, Category category){
-        return new Post(
+        Post post = new Post(
                 request.getTitle(),
                 request.getDescription(),
                 request.getPrice(),
                 LocalDateTime.now(),
+                request.getLocation(),
                 true,
                 category
         );
+        return post;
     }
     @Override
     public void deletePostById(Long id) {
@@ -85,5 +114,14 @@ public class PostService implements IPostService{
     @Override
     public List<Post> getAllPostsByTitle(String title) {
         return postRepository.findByTitle(title);
+    }
+
+    @Override
+    public PostDTO convertPostDTO(Post post) {
+        PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+        Vehicle vehicle = vehicleRepository.findById(post.getId()).orElse(null);
+        VehicleDTO vehicleDTO = modelMapper.map(vehicle, VehicleDTO.class);
+        postDTO.setVehicle(vehicleDTO);
+        return postDTO;
     }
 }

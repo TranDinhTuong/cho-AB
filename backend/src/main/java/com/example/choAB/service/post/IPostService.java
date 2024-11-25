@@ -1,5 +1,6 @@
 package com.example.choAB.service.post;
 
+import com.example.choAB.dto.PostDTO;
 import com.example.choAB.model.Post;
 import com.example.choAB.request.AddPostRequest;
 import com.example.choAB.request.UpdatePostRequest;
@@ -16,4 +17,6 @@ public interface IPostService {
     List<Post> getAllPostsByCategory(String category);
 
     List<Post> getAllPostsByTitle(String title);
+
+    PostDTO convertPostDTO(Post post);
 }

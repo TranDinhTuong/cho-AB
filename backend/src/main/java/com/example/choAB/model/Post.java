@@ -25,6 +25,7 @@ public class Post {
     private String description;
     private BigDecimal price;
     private LocalDateTime post_date;
+    private String location;
     private boolean is_priority;
 
     @ManyToOne
@@ -48,16 +49,17 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Vehicle vehicle;
 
-    public Post(String title, String description, BigDecimal price, LocalDateTime post_date, boolean is_priority, Category category) {
+    public Post(String title, String description, BigDecimal price, LocalDateTime post_date,String location ,boolean is_priority, Category category) {
         this.title = title;
         this.description = description;
         this.price = price;
         this.post_date = post_date;
         this.is_priority = is_priority;
+        this.location = location;
         this.category = category;
     }
 
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Vehicle vehicle;
 }

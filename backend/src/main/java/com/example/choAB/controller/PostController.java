@@ -1,5 +1,6 @@
 package com.example.choAB.controller;
 
+import com.example.choAB.dto.PostDTO;
 import com.example.choAB.exception.ResourceNotFoundException;
 import com.example.choAB.model.Post;
 import com.example.choAB.request.AddPostRequest;
@@ -20,12 +21,13 @@ import java.util.List;
 public class PostController{
     private final IPostService postService;
 
-    @PreAuthorize(value = "hasRole('ROLE_USER')")
+    //@PreAuthorize(value = "hasRole('ROLE_USER')")
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addPost(@RequestBody AddPostRequest request){
         try{
             Post post = postService.addPost(request);
-            return ResponseEntity.ok(new ApiResponse("Success", post));
+            PostDTO postDTO = postService.convertPostDTO(post);
+            return ResponseEntity.ok(new ApiResponse("Success", postDTO));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
         }

@@ -36,7 +36,7 @@ public class ShopConfig {
 
     //danh sách các URL được bảo vệ yêu cầu người dùng phải xác thực (ví dụ: các API liên quan đến giỏ hàng).
     private static final List<String> SECURED_URLS =
-            List.of("/api/v1/carts/**", "/api/v1/cartItems/**");
+            List.of();
 
     @Bean
     public ModelMapper modelMapper() {
@@ -86,7 +86,7 @@ public class ShopConfig {
                 .authorizeHttpRequests(auth ->auth.requestMatchers(SECURED_URLS.toArray(String[]::new))
                         .authenticated()
                         .anyRequest()
-                            .permitAll() // cũng cho phép all
+                        .permitAll() // cũng cho phép all
                 );
         http.authenticationProvider(daoAuthenticationProvider()); //Thiết lập daoAuthenticationProvider() để xử lý xác thực người dùng.
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class); //Thêm authTokenFilter() vào trước filter UsernamePasswordAuthenticationFilter để xử lý JWT.

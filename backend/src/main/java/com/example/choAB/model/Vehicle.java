@@ -24,10 +24,10 @@ public class Vehicle {
     private int mileage;          // Số km đã đi được
 
     @OneToOne
-    @JoinColumn(name = "post_id", referencedColumnName = "id")
+    @JoinColumn(name = "post_id")
     private Post post;
 
-    public Vehicle(String manufacturer, int year, String fuelType, String origin, String licensePlate, String color, int mileage) {
+    public Vehicle(String manufacturer, int year, String fuelType, String origin, String licensePlate, String color, int mileage, Post post) {
         this.manufacturer = manufacturer;
         this.year = year;
         this.fuelType = fuelType;
@@ -35,5 +35,6 @@ public class Vehicle {
         this.licensePlate = licensePlate;
         this.color = color;
         this.mileage = mileage;
+        this.post = post;
     }
 }
