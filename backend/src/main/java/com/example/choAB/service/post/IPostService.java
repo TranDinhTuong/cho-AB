@@ -8,15 +8,19 @@ import com.example.choAB.request.UpdatePostRequest;
 import java.util.List;
 
 public interface IPostService {
-    Post addPost(AddPostRequest request);
+    Post addPost(AddPostRequest request, String userName);
 
     void deletePostById(Long id);
     Post updatePost(UpdatePostRequest request, Long postId);
     Post getPostById(Long id);
     List<Post> getAllPosts();
-    List<Post> getAllPostsByCategory(String category);
+    List<Post> getAllPostsByCategoryAndTitle(String category, String title);
 
     List<Post> getAllPostsByTitle(String title);
+
+    void approvePost(List<Long> ids, String email);
+
+    void rejectPost(List<Long> ids, String email);
 
     PostDTO convertPostDTO(Post post);
 }

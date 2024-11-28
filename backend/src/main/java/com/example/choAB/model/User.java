@@ -1,5 +1,6 @@
 package com.example.choAB.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,17 +30,19 @@ public class User {
     private LocalDateTime register_date;
     private Float rating;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Transaction> transactions = new HashSet<>();
 
-    //upload
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 
-    //reviews
+    @JsonIgnore
     @OneToMany(mappedBy = "user_admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> review_posts;
 

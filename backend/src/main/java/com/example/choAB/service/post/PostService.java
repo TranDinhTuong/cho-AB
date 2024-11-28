@@ -1,13 +1,17 @@
 package com.example.choAB.service.post;
 
+import com.example.choAB.dto.CategoryDTO;
 import com.example.choAB.dto.PostDTO;
 import com.example.choAB.dto.VehicleDTO;
+import com.example.choAB.enums.PostStatus;
 import com.example.choAB.exception.ResourceNotFoundException;
 import com.example.choAB.model.Category;
 import com.example.choAB.model.Post;
+import com.example.choAB.model.User;
 import com.example.choAB.model.Vehicle;
 import com.example.choAB.repository.CategoryRepository;
 import com.example.choAB.repository.PostRepository;
+import com.example.choAB.repository.UserRepository;
 import com.example.choAB.repository.VehicleRepository;
 import com.example.choAB.request.AddPostRequest;
 import com.example.choAB.request.UpdatePostRequest;
@@ -30,16 +34,22 @@ public class PostService implements IPostService{
 
     private final ModelMapper modelMapper;
 
+    private final UserRepository userRepository;
+
+
     @Override
-    public Post addPost(AddPostRequest request) {
+    public Post addPost(AddPostRequest request, String email) {
+
+        User user = Optional.ofNullable(userRepository.findByEmail(email))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet(() ->{
                     Category newCategory = new Category(request.getCategory().getName());
                     return categoryRepository.save(newCategory);
                 });
 
-        Post post = createPost(request, category);
-
+        Post post = createPost(request, category, user);
         postRepository.save(post);
 
         if(category.getName().equals("Xe Co")){
@@ -58,7 +68,7 @@ public class PostService implements IPostService{
         }
         return post;
     }
-    private Post createPost(AddPostRequest request, Category category){
+    private Post createPost(AddPostRequest request, Category category, User user){
         Post post = new Post(
                 request.getTitle(),
                 request.getDescription(),
@@ -66,7 +76,9 @@ public class PostService implements IPostService{
                 LocalDateTime.now(),
                 request.getLocation(),
                 true,
-                category
+                category,
+                user,
+                PostStatus.PENDING
         );
         return post;
     }
@@ -107,8 +119,8 @@ public class PostService implements IPostService{
     }
 
     @Override
-    public List<Post> getAllPostsByCategory(String category) {
-        return postRepository.findByCategoryName(category);
+    public List<Post> getAllPostsByCategoryAndTitle(String category, String title) {
+        return postRepository.findByCategoryNameAndTitleContainingIgnoreCase(category, title);
     }
 
     @Override
@@ -119,9 +131,45 @@ public class PostService implements IPostService{
     @Override
     public PostDTO convertPostDTO(Post post) {
         PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+
+        postDTO.setCategory(post.getCategory().getName());
+
         Vehicle vehicle = vehicleRepository.findById(post.getId()).orElse(null);
-        VehicleDTO vehicleDTO = modelMapper.map(vehicle, VehicleDTO.class);
-        postDTO.setVehicle(vehicleDTO);
+        if(vehicle != null){
+            VehicleDTO vehicleDTO = modelMapper.map(vehicle, VehicleDTO.class);
+            postDTO.setVehicle(vehicleDTO);
+        }
         return postDTO;
+    }
+
+    @Override
+    public void approvePost(List<Long> ids, String email) {
+
+        User user = Optional.ofNullable(userRepository.findByEmail(email))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+
+        List<Post> posts = postRepository.findAllById(ids);
+        posts.forEach(
+                post -> {
+                    post.setStatus(PostStatus.APPROVED);
+                    post.setUser_admin(user);
+                }
+        );
+        postRepository.saveAll(posts);
+    }
+
+    @Override
+    public void rejectPost(List<Long> ids, String email) {
+        User user = Optional.ofNullable(userRepository.findByEmail(email))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+
+        List<Post> posts = postRepository.findAllById(ids);
+        posts.forEach(
+                post -> {
+                    post.setStatus(PostStatus.REJECTED);
+                    post.setUser_admin(user);
+                }
+        );
+        postRepository.saveAll(posts);
     }
 }

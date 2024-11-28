@@ -1,5 +1,6 @@
 package com.example.choAB.controller;
 
+import com.example.choAB.dto.UserDto;
 import com.example.choAB.exception.ResourceNotFoundException;
 import com.example.choAB.model.User;
 import com.example.choAB.request.CreateUserRequest;
@@ -21,8 +22,8 @@ public class UserController {
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId){
         try{
             User user = userService.getUserById(userId);
-            //UserDto userDto = userService.convertUserDto(user);
-            return ResponseEntity.ok(new ApiResponse("Success", user));
+            UserDto userDto = userService.convertUserDto(user);
+            return ResponseEntity.ok(new ApiResponse("Success", userDto));
         }catch (ResourceNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
@@ -32,12 +33,14 @@ public class UserController {
     public ResponseEntity<ApiResponse> createUser(@RequestBody CreateUserRequest request){
         try{
             User user = userService.createUser(request);
-            //UserDto userDto = userService.convertUserDto(user);
-            return ResponseEntity.ok(new ApiResponse("Create User Success!", user));
+            UserDto userDto = userService.convertUserDto(user);
+            return ResponseEntity.ok(new ApiResponse("Create User Success!", userDto));
         }catch (ResourceNotFoundException e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), null));
         }
     }
+
+
 
     @DeleteMapping("/{userId}/delete")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long userId){

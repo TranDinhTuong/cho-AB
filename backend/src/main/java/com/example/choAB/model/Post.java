@@ -1,5 +1,6 @@
 package com.example.choAB.model;
 
+import com.example.choAB.enums.PostStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,10 @@ public class Post {
     private BigDecimal price;
     private LocalDateTime post_date;
     private String location;
+
+    @Enumerated(EnumType.STRING)
+    private PostStatus status ;
+
     private boolean is_priority;
 
     @ManyToOne
@@ -52,7 +57,7 @@ public class Post {
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Vehicle vehicle;
 
-    public Post(String title, String description, BigDecimal price, LocalDateTime post_date,String location ,boolean is_priority, Category category) {
+    public Post(String title, String description, BigDecimal price, LocalDateTime post_date,String location ,boolean is_priority, Category category, User user, PostStatus status) {
         this.title = title;
         this.description = description;
         this.price = price;
@@ -60,6 +65,8 @@ public class Post {
         this.is_priority = is_priority;
         this.location = location;
         this.category = category;
+        this.user = user;
+        this.status = status;
     }
 
 }
