@@ -5,6 +5,7 @@ import com.example.choAB.model.*;
 import com.example.choAB.repository.*;
 import com.example.choAB.service.image.IImageService;
 import com.example.choAB.service.image.ImageService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -12,9 +13,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,10 +40,11 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
     private final VehicleRepository vehicleRepository;
 
     private boolean isInitialized = false; // Cờ kiểm tra
+
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        Set<String> defaultRoles =  Set.of("ROLE_ADMIN", "ROLE_USER");
-        if(!isInitialized){
+        Set<String> defaultRoles = Set.of("ROLE_ADMIN", "ROLE_USER");
+        if (!isInitialized) {
             isInitialized = true;
             createDefaultRoleIfNotExits(defaultRoles);
             createDefaultUserIfNotExits();
@@ -43,11 +53,12 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
         }
     }
 
-    private void createDefaultUserIfNotExits(){
+
+    private void createDefaultUserIfNotExits() {
         Role userRole = roleRepository.findByName("ROLE_USER").get();
-        for (int i = 1; i <= 2; i++){
-            String defaultEmail = "sam"+i+"@email.com";
-            if (userRepository.existsByEmail(defaultEmail)){
+        for (int i = 1; i <= 2; i++) {
+            String defaultEmail = "sam" + i + "@email.com";
+            if (userRepository.existsByEmail(defaultEmail)) {
                 continue;
             }
             User user = new User();
@@ -60,11 +71,11 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
         }
     }
 
-    private void createDefaultAdminIfNotExits(){
+    private void createDefaultAdminIfNotExits() {
         Role adminRole = roleRepository.findByName("ROLE_ADMIN").get();
-        for (int i = 1; i<=2; i++){
-            String defaultEmail = "admin"+i+"@email.com";
-            if (userRepository.existsByEmail(defaultEmail)){
+        for (int i = 1; i <= 2; i++) {
+            String defaultEmail = "admin" + i + "@email.com";
+            if (userRepository.existsByEmail(defaultEmail)) {
                 continue;
             }
             User user = new User();
@@ -77,32 +88,31 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
         }
     }
 
-    private void createDefaultRoleIfNotExits(Set<String> roles){
+    private void createDefaultRoleIfNotExits(Set<String> roles) {
         roles.stream()
-             .filter(role -> roleRepository.findByName(role).isEmpty())
-             .map(Role:: new).forEach(roleRepository::save);
+                .filter(role -> roleRepository.findByName(role).isEmpty())
+                .map(Role::new).forEach(roleRepository::save);
     }
 
 
-    private void createDefaultPost(){
-        //User user = userRepository.findById(1L).orElse(null);
-        for (int i = 1; i <= 3; i++){
+    private void createDefaultPost() {
+        User user = userRepository.findById(1L).orElse(null);
+        for (int i = 1; i <= 3; i++) {
             Post post = new Post();
-            post.setTitle("vinf " + i);
+            post.setTitle("vinf " + (i + 6));
             post.setDescription("vin no " + i);
             post.setPrice(BigDecimal.valueOf(1000 + i));
             post.setPost_date(LocalDateTime.now());
             post.set_priority(true);
             post.setStatus(PostStatus.PENDING); // cho duyet
             Category category = Optional.ofNullable(categoryRepository.findByName("Xe Co"))
-                    .orElseGet(() ->{
+                    .orElseGet(() -> {
                         Category newCategory = new Category("Xe Co");
                         return categoryRepository.save(newCategory);
                     });
 
             post.setCategory(category);
             post.setLocation("Quận " + i + " tp HCM");
-
             Vehicle vehicle = new Vehicle();
             vehicle.setManufacturer("vinfast");
             vehicle.setYear(2021);
@@ -115,14 +125,14 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
             vehicleRepository.save(vehicle);
 
             post.setVehicle(vehicle);
-            //post.setUser(user);
+            post.setUser(user);
             postRepository.save(post);
         }
 
-        //User user1 = userRepository.findById(2L).orElse(null);
-        for (int i = 1; i <= 3; i++){
+        User user1 = userRepository.findById(2L).orElse(null);
+        for (int i = 1; i <= 3; i++) {
             Post post = new Post();
-            post.setTitle("iphone " + i);
+            post.setTitle("iphone " + (i + 6));
             post.setDescription("iphone ne " + i);
             post.setPrice(BigDecimal.valueOf(1000 + i));
             post.setPost_date(LocalDateTime.now());
@@ -130,14 +140,14 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
             post.setStatus(PostStatus.PENDING); // cho duyet
 
             Category category = Optional.ofNullable(categoryRepository.findByName("Dien Thoai"))
-                    .orElseGet(() ->{
+                    .orElseGet(() -> {
                         Category newCategory = new Category("Dien Thoai");
                         return categoryRepository.save(newCategory);
                     });
 
             post.setCategory(category);
             post.setLocation("Quận " + i + " tp HCM");
-            //post.setUser(user1);
+            post.setUser(user1);
             postRepository.save(post);
         }
 

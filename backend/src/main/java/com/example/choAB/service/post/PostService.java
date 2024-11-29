@@ -38,10 +38,10 @@ public class PostService implements IPostService{
 
 
     @Override
-    public Post addPost(AddPostRequest request, String email) {
+    public Post addPost(AddPostRequest request, User user) {
 
-        User user = Optional.ofNullable(userRepository.findByEmail(email))
-                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+//        User user = Optional.ofNullable(userRepository.findByEmail(email))
+//                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
 
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet(() ->{
@@ -126,6 +126,11 @@ public class PostService implements IPostService{
     @Override
     public List<Post> getAllPostsByTitle(String title) {
         return postRepository.findByTitle(title);
+    }
+
+    @Override
+    public List<Post> getPostByUserId(Long userId) {
+        return postRepository.findByUserId(userId);
     }
 
     @Override

@@ -47,6 +47,8 @@ public class UserService implements IUserService{
                     user.setPassword(passwordEncoder.encode(req.getPassword())); //ma hoa mat khau
                     user.setName(req.getName());
                     user.setRoles(Set.of(userRole));
+                    user.set_verified(false);
+                    user.setRegister_date(java.time.LocalDateTime.now());
                     return userRepository.save(user);
                 }).orElseThrow(() -> new ResourceNotFoundException("Oops!" +request.getEmail() +" already exists!"));
     }

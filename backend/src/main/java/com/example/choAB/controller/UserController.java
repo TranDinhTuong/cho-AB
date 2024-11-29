@@ -29,6 +29,7 @@ public class UserController {
         }
     }
 
+
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> createUser(@RequestBody CreateUserRequest request){
         try{

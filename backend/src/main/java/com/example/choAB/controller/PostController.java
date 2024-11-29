@@ -3,11 +3,13 @@ package com.example.choAB.controller;
 import com.example.choAB.dto.PostDTO;
 import com.example.choAB.exception.ResourceNotFoundException;
 import com.example.choAB.model.Post;
+import com.example.choAB.model.User;
 import com.example.choAB.request.AddPostRequest;
 import com.example.choAB.request.UpdatePostRequest;
 import com.example.choAB.response.ApiResponse;
 import com.example.choAB.security.jwt.JwtUtils;
 import com.example.choAB.service.post.IPostService;
+import com.example.choAB.service.user.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -27,22 +29,25 @@ import java.util.Map;
 public class PostController{
     private final IPostService postService;
 
-    private final JwtUtils jwtUtils;
+    private final IUserService userService;
 
 
-    @PreAuthorize(value = "hasRole('ROLE_USER')")
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addPost(@RequestBody AddPostRequest request, HttpServletRequest httpRequest){
+    //@PreAuthorize(value = "hasRole('ROLE_USER')")
+    @PostMapping("/{userId}/add")
+    public ResponseEntity<ApiResponse> addPost(@RequestBody AddPostRequest request, @PathVariable Long userId){
         try{
-            // Lấy token từ header Authorization
-            String token = httpRequest.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7); // Bỏ phần "Bearer " khỏi token
-            }
 
-            String username = jwtUtils.getUsernameFromToken(token);
+//            // Lấy token từ header Authorization
+//            String token = httpRequest.getHeader("Authorization");
+//            if (token != null && token.startsWith("Bearer ")) {
+//                token = token.substring(7); // Bỏ phần "Bearer " khỏi token
+//            }
 
-            Post post = postService.addPost(request, "username");
+//            String username = jwtUtils.getUsernameFromToken(token);
+
+            User user = userService.getUserById(userId);
+
+            Post post = postService.addPost(request, user);
 
             PostDTO postDTO = postService.convertPostDTO(post);
 
@@ -64,7 +69,7 @@ public class PostController{
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7); // Bỏ phần "Bearer " khỏi token
             }
-            String username = jwtUtils.getUsernameFromToken(token);
+            //String username = jwtUtils.getUsernameFromToken(token);
 
             List<Long> id = (List<Long>) ids.get("ids");
             if(isApproved){
@@ -99,6 +104,22 @@ public class PostController{
             Post post = postService.getPostById(id);
             PostDTO postDTO = postService.convertPostDTO(post);
             return ResponseEntity.ok(new ApiResponse("Success", postDTO));
+        }catch (ResourceNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/{userId}/post")
+    public ResponseEntity<ApiResponse> getPostByUserId(@PathVariable Long userId){
+        try{
+            List<Post> posts = postService.getPostByUserId(userId);
+            if(posts.isEmpty()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("No product found ", null));
+            }
+            List<PostDTO> postDTOs = posts.stream().map(
+                    (element) -> postService.convertPostDTO(element)
+            ).toList();
+            return ResponseEntity.ok(new ApiResponse("Success", postDTOs));
         }catch (ResourceNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }

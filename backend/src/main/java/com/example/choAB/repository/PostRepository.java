@@ -8,4 +8,6 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByCategoryNameAndTitleContainingIgnoreCase(String category, String title);
     List<Post> findByTitle(String title);
+
+    List<Post> findByUserId(Long userId);
 }

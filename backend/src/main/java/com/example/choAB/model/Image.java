@@ -28,7 +28,7 @@ public class Image {
     private String downloadUrl;
 
     @ManyToOne //co nhieu hinh anh cua 1 product
-    @JoinColumn(name = "product_id") //khoa ngoai
+    @JoinColumn(name = "post_id") //khoa ngoai
     private Post post;
 }
 
