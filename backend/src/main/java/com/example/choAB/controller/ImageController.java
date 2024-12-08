@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -46,6 +47,22 @@ public class ImageController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/image/download/post/{postId}")
+    public ResponseEntity<ApiResponse> getImageByPostId(@PathVariable Long postId) {
+        try {
+            List<Image> images = imageService.getImagesByPostId(postId);
+
+            List<ImageDto> imageDtos = images.stream().map(imageService::convertImageToDto).toList();
+            if(imageDtos.isEmpty()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+            return ResponseEntity.ok(new ApiResponse("Success!", imageDtos));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
     @PutMapping("/image/{imageId}/update")
     public ResponseEntity<ApiResponse> updateImage(@PathVariable Long imageId, @RequestParam MultipartFile file){
         try{

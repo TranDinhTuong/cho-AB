@@ -7,6 +7,7 @@ import com.example.choAB.model.Post;
 import com.example.choAB.repository.ImageRepository;
 import com.example.choAB.service.post.IPostService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,8 @@ import java.util.List;
 public class ImageService implements IImageService{
     private final ImageRepository imageRepository;
     private final IPostService postService;
+    private final ModelMapper modelMapper;
+
     @Override
     public Image getImageById(Long id) {
         return imageRepository.findById(id)
@@ -33,6 +36,11 @@ public class ImageService implements IImageService{
                 imageRepository::delete,
                 () -> new ResourceNotFoundException("No image found with: " + id)
         );
+    }
+
+    @Override
+    public List<Image> getImagesByPostId(Long postId) {
+        return imageRepository.findByPostId(postId);
     }
 
     @Override
@@ -52,7 +60,7 @@ public class ImageService implements IImageService{
                 image.setDownloadUrl(downloadUrl);
 
                 Image savedImage  = imageRepository.save(image);
-                savedImage.setDownloadUrl( buildDownloadUrl + savedImage.getId());
+                savedImage.setDownloadUrl(buildDownloadUrl + savedImage.getId());
                 imageRepository.save(savedImage);
 
                 ImageDto imageDto = new ImageDto();
@@ -78,5 +86,11 @@ public class ImageService implements IImageService{
         }catch (IOException | SQLException e){
             throw new ResourceNotFoundException(e.getMessage());
         }
+    }
+
+    @Override
+    public ImageDto convertImageToDto(Image images) {
+        ImageDto imageDtos = modelMapper.map(images, ImageDto.class);
+        return imageDtos;
     }
 }
