@@ -17,4 +17,8 @@ public class PostDTO {
     private String status;
     private String category;
     private VehicleDTO vehicle;
+
+    private UserDto user;
+    private JobDTO job;
+    private PhoneDTO phone;
 }

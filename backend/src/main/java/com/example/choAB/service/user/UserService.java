@@ -2,9 +2,12 @@ package com.example.choAB.service.user;
 
 import com.example.choAB.dto.RoleDTO;
 import com.example.choAB.dto.UserDto;
+import com.example.choAB.enums.Status;
 import com.example.choAB.exception.ResourceNotFoundException;
+import com.example.choAB.model.Conversation;
 import com.example.choAB.model.Role;
 import com.example.choAB.model.User;
+import com.example.choAB.repository.ConversationRepository;
 import com.example.choAB.repository.RoleRepository;
 import com.example.choAB.repository.UserRepository;
 import com.example.choAB.request.CreateUserRequest;
@@ -20,12 +23,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService{
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ConversationRepository conversationRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
@@ -80,4 +85,28 @@ public class UserService implements IUserService{
 
         return null;
     }
+
+
+    @Override
+    public Long findConversationIdByUser1IdAndUser2Id(Long user1Id, Long user2Id) {
+        Optional<User> user1 = userRepository.findById(user1Id);
+        Optional<User> user2 = userRepository.findById(user2Id);
+
+        if (user1.isEmpty() || user2.isEmpty()) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        Long conversationId;
+        Optional<Conversation> existingConversation = conversationRepository.findConversationByUsers(user1.get(), user2.get());
+        if (existingConversation.isPresent()) {
+            conversationId = existingConversation.get().getId();
+        } else {
+            Conversation newConversation = new Conversation();
+            newConversation.setUser1(user1.get());
+            newConversation.setUser2(user2.get());
+            Conversation savedConversation = conversationRepository.save(newConversation);
+            conversationId = savedConversation.getId();
+        }
+        return conversationId;
+    }
+
 }

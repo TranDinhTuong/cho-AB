@@ -1,6 +1,8 @@
 package com.example.choAB.request;
 
 import com.example.choAB.model.Category;
+import com.example.choAB.model.Job;
+import com.example.choAB.model.Phone;
 import com.example.choAB.model.Vehicle;
 import lombok.Data;
 
@@ -16,4 +18,6 @@ public class AddPostRequest {
     private String location;
     private Category category;
     private Vehicle vehicle;
+    private Job job;
+    private Phone phone;
 }

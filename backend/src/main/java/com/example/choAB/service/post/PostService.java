@@ -1,22 +1,18 @@
 package com.example.choAB.service.post;
 
-import com.example.choAB.dto.CategoryDTO;
-import com.example.choAB.dto.PostDTO;
-import com.example.choAB.dto.VehicleDTO;
+import com.example.choAB.core.PostSpecification;
+import com.example.choAB.dto.*;
 import com.example.choAB.enums.PostStatus;
 import com.example.choAB.exception.ResourceNotFoundException;
-import com.example.choAB.model.Category;
-import com.example.choAB.model.Post;
-import com.example.choAB.model.User;
-import com.example.choAB.model.Vehicle;
-import com.example.choAB.repository.CategoryRepository;
-import com.example.choAB.repository.PostRepository;
-import com.example.choAB.repository.UserRepository;
-import com.example.choAB.repository.VehicleRepository;
+import com.example.choAB.model.*;
+import com.example.choAB.repository.*;
 import com.example.choAB.request.AddPostRequest;
 import com.example.choAB.request.UpdatePostRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -35,6 +31,9 @@ public class PostService implements IPostService{
     private final ModelMapper modelMapper;
 
     private final UserRepository userRepository;
+
+    private final PhoneRepository phoneRepository;
+    private final JobRepository jobRepository;
 
 
     @Override
@@ -65,6 +64,39 @@ public class PostService implements IPostService{
                     );
                     vehicleRepository.save(vehicle);
                     post.setVehicle(vehicle);
+        }
+        else if(category.getName().equals("Viec Lam")){
+            Job job = new Job(
+                    request.getJob().getCompanyName(),
+                    request.getJob().getQuantity(),
+                    request.getJob().getIndustry(),
+                    request.getJob().getJobType(),
+                    request.getJob().getSalaryType(),
+                    request.getJob().getMinSalary(),
+                    request.getJob().getMaxSalary(),
+                    request.getJob().getMinAge(),
+                    request.getJob().getMaxAge(),
+                    request.getJob().getGender(),
+                    request.getJob().getEducationLevel(),
+                    request.getJob().getExperience(),
+                    request.getJob().getCertificates(),
+                    post
+            );
+            jobRepository.save(job);
+            post.setJob(job);
+        }
+        else if(category.getName().equals("Dien Thoai")){
+            Phone phone = new Phone(
+                    request.getPhone().getCondition(),
+                    request.getPhone().getBrand(),
+                    request.getPhone().getModel(),
+                    request.getPhone().getOrigin(),
+                    request.getPhone().getColor(),
+                    request.getPhone().getStorage(),
+                    post
+            );
+            phoneRepository.save(phone);
+            post.setPhone(phone);
         }
         return post;
     }
@@ -107,6 +139,7 @@ public class PostService implements IPostService{
         existingPost.setCategory(category);
         return existingPost;
     }
+
     @Override
     public Post getPostById(Long id) {
         return postRepository.findById(id)
@@ -119,8 +152,8 @@ public class PostService implements IPostService{
     }
 
     @Override
-    public List<Post> getAllPostsByCategoryAndTitle(String category, String title) {
-        return postRepository.findByCategoryNameAndTitleContainingIgnoreCase(category, title);
+    public Page<Post> findAllPosts(Specification<Post> specification, PageRequest pageRequest) {
+        return postRepository.findAll(specification, pageRequest);
     }
 
     @Override
@@ -140,9 +173,18 @@ public class PostService implements IPostService{
         postDTO.setCategory(post.getCategory().getName());
 
         Vehicle vehicle = vehicleRepository.findById(post.getId()).orElse(null);
+        Job job = jobRepository.findById(post.getId()).orElse(null);
+        Phone phone = phoneRepository.findById(post.getId()).orElse(null);
+
         if(vehicle != null){
             VehicleDTO vehicleDTO = modelMapper.map(vehicle, VehicleDTO.class);
             postDTO.setVehicle(vehicleDTO);
+        }else if(job != null) {
+            JobDTO jobDTO = modelMapper.map(job, JobDTO.class);
+            postDTO.setJob(jobDTO);
+        }else if(phone != null){
+            PhoneDTO phoneDTO = modelMapper.map(phone, PhoneDTO.class);
+            postDTO.setPhone(phoneDTO);
         }
         return postDTO;
     }
@@ -176,5 +218,18 @@ public class PostService implements IPostService{
                 }
         );
         postRepository.saveAll(posts);
+    }
+
+    @Override
+    public User getUserByPostId(Long postId) {
+        return postRepository.findById(postId)
+                .map(Post::getUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found!"));
+    }
+
+    @Override
+    public List<Post> getPostByCategory(String category, int page) {
+        PageRequest pageRequest = PageRequest.of(page, 2);
+        return postRepository.findByCategoryName(category, pageRequest);
     }
 }

@@ -3,14 +3,17 @@ package com.example.choAB.controller;
 import com.example.choAB.exception.ResourceNotFoundException;
 import com.example.choAB.model.Category;
 import com.example.choAB.model.Message;
+import com.example.choAB.request.MessageRequest;
 import com.example.choAB.response.ApiResponse;
 import com.example.choAB.service.message.IMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -22,36 +25,36 @@ public class MessageController {
 
     private final IMessageService messageService;
 
-    @GetMapping("/{id}/message")
-    public ResponseEntity<ApiResponse> getMessageById(@PathVariable Long id){
-        try {
-            Message message = messageService.getMessageById(id);
-            return ResponseEntity.ok(new ApiResponse("Success!", message));
-        }catch (ResourceNotFoundException e){
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("Error:", e.getMessage()));
-        }
+    @MessageMapping("/user")
+    public void sendUserConversationByUserId(Long userId) {
+        messageService.sendUserConversationByUserId(userId);
     }
 
-    @GetMapping("message/{conversationId}/all")
-    public ResponseEntity<ApiResponse> getMessageByConversationId(@PathVariable Long conversationId){
-        try {
-            List<Message> message = messageService.getMessageByConversationId(conversationId);
-            if(message.isEmpty()){
-                return ResponseEntity.ok(new ApiResponse("Success!", "Empty"));
-            }
-            return ResponseEntity.ok(new ApiResponse("Success!", message));
-        }catch (Exception e){
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse("Error:", e.getMessage()));
-        }
+
+    @MessageMapping("/conv")
+    public void sendMessagesByConversationId(Long conversationId) {
+        messageService.sendMessagesByConversationId(conversationId);
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addCategory(@RequestBody Message request){
-        try {
-            Message message = messageService.addMessage(request);
-            return ResponseEntity.ok(new ApiResponse("Success", message));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse("Failed: " + e.getMessage(), null));
-        }
+    @MessageMapping("/sendMessage")
+    public void saveMessage(MessageRequest message) {
+        messageService.saveMessage(message);
+    }
+
+    @MessageMapping("/deleteConversation")
+    public void deleteConversation(Map<String, Object> payload) {
+        Long conversationId = (Long) payload.get("conversationId");
+        Long user1 = (Long) payload.get("user1Id");
+        Long user2 = (Long) payload.get("user2Id");
+        messageService.deleteConversationByConversationId(conversationId);
+        messageService.sendUserConversationByUserId(user1);
+        messageService.sendUserConversationByUserId(user2);
+    }
+
+    @MessageMapping("/deleteMessage")
+    public void deleteMessage(Map<String, Object> payload) {
+        Long conversationId = (Long) payload.get("conversationId");
+        Long messageId = (Long) payload.get("messageId");
+        messageService.deleteMessageByMessageId(conversationId, messageId);
     }
 }

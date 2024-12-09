@@ -1,12 +1,13 @@
 package com.example.choAB.model;
 
+import com.example.choAB.enums.Status;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -28,7 +29,10 @@ public class User {
     private boolean is_verified;
     private LocalDateTime last_login;
     private LocalDateTime register_date;
+
+    private String phone;
     private Float rating;
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -45,7 +49,6 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "user_admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> review_posts;
-
 
 
     @ManyToMany
@@ -67,14 +70,6 @@ public class User {
     // List of users that are following this user
     @ManyToMany(mappedBy = "following")
     private List<User> followers;
-
-    @ManyToMany
-    @JoinTable(
-            name = "conversation_participants", // Tên bảng trung gian
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), // Khoá ngoại trỏ tới bảng Users
-            inverseJoinColumns = @JoinColumn(name = "conversation_id", referencedColumnName = "id") // Khoá ngoại trỏ tới bảng Conversations
-    )
-    private Set<Conversation> conversations = new HashSet<>();
 
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}) //role it phu thuoc vao user , de neu user bi xoa thi role ko bi xoa theo

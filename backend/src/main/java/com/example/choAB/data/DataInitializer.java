@@ -38,6 +38,7 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final VehicleRepository vehicleRepository;
+    private final PhoneRepository phoneRepository;
 
     private boolean isInitialized = false; // Cờ kiểm tra
 
@@ -65,6 +66,7 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
             user.setName("User" + i);
             user.setEmail(defaultEmail);
             user.setPassword(passwordEncoder.encode("123456"));
+            user.setPhone("0123456789");
             user.setRoles(Set.of(userRole));
             userRepository.save(user);
             System.out.println("Default vet user " + i + " created successfully.");
@@ -80,6 +82,7 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
             }
             User user = new User();
             user.setName("Admin" + i);
+            user.setPhone("0123456789");
             user.setEmail(defaultEmail);
             user.setPassword(passwordEncoder.encode("123456"));
             user.setRoles(Set.of(adminRole));
@@ -101,7 +104,7 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
             Post post = new Post();
             post.setTitle("vinf " + (i + 6));
             post.setDescription("vin no " + i);
-            post.setPrice(BigDecimal.valueOf(1000 + i));
+            post.setPrice(BigDecimal.valueOf(10000000));
             post.setPost_date(LocalDateTime.now());
             post.set_priority(true);
             post.setStatus(PostStatus.PENDING); // cho duyet
@@ -134,7 +137,7 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
             Post post = new Post();
             post.setTitle("iphone " + (i + 6));
             post.setDescription("iphone ne " + i);
-            post.setPrice(BigDecimal.valueOf(1000 + i));
+            post.setPrice(BigDecimal.valueOf(10000000));
             post.setPost_date(LocalDateTime.now());
             post.set_priority(false);
             post.setStatus(PostStatus.PENDING); // cho duyet
@@ -144,10 +147,21 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
                         Category newCategory = new Category("Dien Thoai");
                         return categoryRepository.save(newCategory);
                     });
-
             post.setCategory(category);
             post.setLocation("Quận " + i + " tp HCM");
             post.setUser(user1);
+
+            Phone phone = new Phone(
+                    "Mới",
+                    "Apple",
+                    "iPhone " + i + 6,
+                    "Chính hãng",
+                    "Đen",
+                    "256GB",
+                    post
+            );
+            phoneRepository.save(phone);
+            post.setPhone(phone);
             postRepository.save(post);
         }
 

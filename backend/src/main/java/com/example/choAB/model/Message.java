@@ -16,10 +16,21 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String content;
-    private LocalDateTime send_time;
+
+    @Column(name = "timestamp")
+    private LocalDateTime timeStamp;
     private boolean is_read = false;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "conversation_id")
     private Conversation conversation;
+
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private User sender;
+
+    @ManyToOne
+    @JoinColumn(name = "receiver_id")
+    private User receiver;
+
 }
