@@ -14,6 +14,8 @@ import com.example.choAB.request.CreateUserRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -86,6 +88,15 @@ public class UserService implements IUserService{
         return null;
     }
 
+    @Override
+    public List<User> findUsersInConversationsByUserId(Long userId) {
+        return conversationRepository.findUsersInConversationsByUserId(userId);
+    }
+
+    @Override
+    public Page<User> getAllUserByRole(String roleName, PageRequest pageRequest) {
+       return userRepository.findByRole(roleName, pageRequest);
+    }
 
     @Override
     public Long findConversationIdByUser1IdAndUser2Id(Long user1Id, Long user2Id) {

@@ -16,6 +16,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.sql.Date;
 import java.time.ZoneId;
@@ -48,10 +50,12 @@ public class MessageService implements IMessageService{
         conversation.setId(conversationId);
         List<Message> messageList = messageRepository.findAllByConversation(conversation);
         List<MessageResponse> messageResponseList = messageList.stream()
+                .sorted((message1, message2) -> message2.getTimeStamp().compareTo(message1.getTimeStamp()))
                 .map((message -> MessageResponse.builder()
                         .messageId(message.getId())
                         .message(message.getContent())
-                        .timestamp(Date.from(message.getTimeStamp().atZone(ZoneId.systemDefault()).toInstant()))
+                        //.timestamp(Date.from(message.getTimeStamp().atZone(ZoneId.systemDefault()).toInstant()))
+                        .timestamp(formatLocalDateTime(message.getTimeStamp()))
                         .senderId(message.getSender().getId())
                         .receiverId(message.getReceiver().getId())
                         .build())
@@ -62,6 +66,16 @@ public class MessageService implements IMessageService{
                 .build()
         );
     }
+
+    private String formatLocalDateTime(LocalDateTime dateTime) {
+        // Chuyển LocalDateTime sang ZonedDateTime với ZoneId chỉ định
+        ZonedDateTime zonedDateTime = dateTime.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"));
+
+        // Định dạng theo dạng "dd/MM/yyyy HH:mm"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return zonedDateTime.format(formatter);
+    }
+
 
     @Override
     public void saveMessage(MessageRequest msg) {
@@ -79,7 +93,8 @@ public class MessageService implements IMessageService{
         MessageResponse res = MessageResponse.builder()
                 .messageId(savedMessage.getId())
                 .message(savedMessage.getContent())
-                .timestamp(Date.from(savedMessage.getTimeStamp().atZone(ZoneId.systemDefault()).toInstant()))
+                //.timestamp(Date.from(savedMessage.getTimeStamp().atZone(ZoneId.systemDefault()).toInstant()))
+                .timestamp(formatLocalDateTime(savedMessage.getTimeStamp()))
                 .senderId(savedMessage.getSender().getId())
                 .receiverId(savedMessage.getReceiver().getId())
                 .build();

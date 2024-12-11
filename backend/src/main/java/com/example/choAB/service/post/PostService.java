@@ -33,7 +33,18 @@ public class PostService implements IPostService{
     private final UserRepository userRepository;
 
     private final PhoneRepository phoneRepository;
+
     private final JobRepository jobRepository;
+
+    private final MotelRepository motelRepository;
+
+    private final HouseholdRepository householdRepository;
+
+    private final FashionRepository fashionRepository;
+
+    private final BookRepository bookRepository;
+
+    private final PetRepository petRepository;
 
 
     @Override
@@ -98,6 +109,56 @@ public class PostService implements IPostService{
             phoneRepository.save(phone);
             post.setPhone(phone);
         }
+        else if (category.getName().equals("Phong tro")) {
+            Motel motel = new Motel();
+            motel.setArea(request.getMotel().getArea());
+            motel.setDeposit(request.getMotel().getDeposit());
+            motel.setPost(post);
+            motelRepository.save(motel);
+            post.setMotel(motel);
+        }
+
+        else if (category.getName().equals("Do gia dung")) {
+            Household household = new Household();
+            household.setName(request.getHousehold().getName());
+            household.setOrigin(request.getHousehold().getOrigin());
+            household.setStatus(request.getHousehold().getStatus());
+            household.setPost(post);
+            householdRepository.save(household);
+            post.setHousehold(household);
+        }
+
+        else if (category.getName().equals("Thoi trang")) {
+            Fashion fashion = new Fashion();
+            fashion.setName(request.getFashion().getName());
+            fashion.setType(request.getFashion().getType());
+            fashion.setStatus(request.getFashion().getStatus());
+            fashion.setPost(post);
+            fashionRepository.save(fashion);
+            post.setFashion(fashion);
+        }
+
+        else if (category.getName().equals("Sach")) {
+            Book book = new Book();
+            book.setName(request.getBook().getName());
+            book.setOrigin(request.getBook().getOrigin());
+            book.setType(request.getBook().getType());
+            book.setYear(request.getBook().getYear());
+            book.setStatus(request.getBook().getStatus());
+            book.setPost(post);
+            bookRepository.save(book);
+            post.setBook(book);
+        }
+        else if (category.getName().equals("Thu cung")) {
+            Pet pet = new Pet();
+            pet.setName(request.getPet().getName());
+            pet.setAge(request.getPet().getAge());
+            pet.setSize(request.getPet().getSize());
+            pet.setPost(post);
+            petRepository.save(pet);
+            post.setPet(pet);
+        }
+
         return post;
     }
     private Post createPost(AddPostRequest request, Category category, User user){
@@ -147,8 +208,8 @@ public class PostService implements IPostService{
     }
 
     @Override
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public List<Post> getAllPosts(PostStatus status) {
+        return postRepository.findByStatus(status);
     }
 
     @Override
@@ -172,20 +233,32 @@ public class PostService implements IPostService{
 
         postDTO.setCategory(post.getCategory().getName());
 
-        Vehicle vehicle = vehicleRepository.findById(post.getId()).orElse(null);
-        Job job = jobRepository.findById(post.getId()).orElse(null);
-        Phone phone = phoneRepository.findById(post.getId()).orElse(null);
-
-        if(vehicle != null){
-            VehicleDTO vehicleDTO = modelMapper.map(vehicle, VehicleDTO.class);
+        if(post.getVehicle() != null){
+            VehicleDTO vehicleDTO = modelMapper.map(post.getVehicle(), VehicleDTO.class);
             postDTO.setVehicle(vehicleDTO);
-        }else if(job != null) {
-            JobDTO jobDTO = modelMapper.map(job, JobDTO.class);
+        }else if(post.getJob() != null) {
+            JobDTO jobDTO = modelMapper.map(post.getJob(), JobDTO.class);
             postDTO.setJob(jobDTO);
-        }else if(phone != null){
-            PhoneDTO phoneDTO = modelMapper.map(phone, PhoneDTO.class);
+        }else if(post.getPhone() != null){
+            PhoneDTO phoneDTO = modelMapper.map(post.getPhone(), PhoneDTO.class);
             postDTO.setPhone(phoneDTO);
+        }else if(post.getMotel() != null) {
+            MotelDTO motelDTO = modelMapper.map(post.getMotel(), MotelDTO.class);
+            postDTO.setMotel(motelDTO);
+        }else if(post.getHousehold() != null) {
+            HouseholdDTO householdDTO = modelMapper.map(post.getHousehold(), HouseholdDTO.class);
+            postDTO.setHousehold(householdDTO);
+        }else if(post.getFashion() != null) {
+            FashionDTO fashionDTO = modelMapper.map(post.getFashion(), FashionDTO.class);
+            postDTO.setFashion(fashionDTO);
+        }else if(post.getBook() != null) {
+            BookDTO bookDTO = modelMapper.map(post.getBook(), BookDTO.class);
+            postDTO.setBook(bookDTO);
+        }else if(post.getPet() != null) {
+            PetDTO petDTO = modelMapper.map(post.getPet(), PetDTO.class);
+            postDTO.setPet(petDTO);
         }
+
         return postDTO;
     }
 

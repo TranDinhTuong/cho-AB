@@ -3,6 +3,7 @@ package com.example.choAB.controller;
 import com.example.choAB.core.PostSpecification;
 import com.example.choAB.dto.PostDTO;
 import com.example.choAB.dto.UserDto;
+import com.example.choAB.enums.PostStatus;
 import com.example.choAB.exception.ResourceNotFoundException;
 import com.example.choAB.model.Post;
 import com.example.choAB.model.User;
@@ -61,7 +62,8 @@ public class PostController {
         }
     }
 
-    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+
+    //@PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PostMapping("/review/{isApproved}")
     public ResponseEntity<ApiResponse> reviewPosts(@RequestBody Map<String, Object> ids,
                                                    @PathVariable boolean isApproved,
@@ -88,7 +90,7 @@ public class PostController {
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> getAllPosts() {
         try {
-            List<Post> posts = postService.getAllPosts();
+            List<Post> posts = postService.getAllPosts(PostStatus.APPROVED);
             List<PostDTO> postDTOs = posts.stream().map(element -> postService.convertPostDTO(element)).toList();
             if (posts.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("No product found ", null));

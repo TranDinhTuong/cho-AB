@@ -16,5 +16,5 @@ public class MessageResponse {
     Long senderId;
     Long receiverId;
     String message;
-    Date timestamp;
+    String timestamp;
 }

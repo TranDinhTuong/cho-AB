@@ -20,7 +20,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
             value = """
                     SELECT
                         C.id AS conversationId,
-                        U.user_id AS otherUserId,
+                        U.id AS otherUserId,
                         U.name AS otherUserName,
                         M.content AS lastMessage,
                         M.timestamp AS lastMessageTimestamp
@@ -32,7 +32,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     LEFT JOIN (
                         SELECT
                             conversation_id,
-                            (SELECT content FROM message M2 WHERE M2.conversation_id = M.conversation_id ORDER BY M2.timestamp DESC LIMIT 1) AS message,
+                            (SELECT content FROM message M2 WHERE M2.conversation_id = M.conversation_id ORDER BY M2.timestamp DESC LIMIT 1) AS content,
                             MAX(timestamp) AS timestamp
                         FROM message M
                         GROUP BY conversation_id
@@ -45,4 +45,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
     )
     List<ConversationResponse> findConversationsByUserId(Long userId);
 
+    @Query("SELECT DISTINCT CASE WHEN c.user1.id = :userId THEN c.user2 ELSE c.user1 END " +
+            "FROM Conversation c " +
+            "WHERE :userId IN (c.user1.id, c.user2.id)")
+    List<User> findUsersInConversationsByUserId(@Param("userId") Long userId);
 }

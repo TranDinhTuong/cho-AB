@@ -2,6 +2,7 @@ package com.example.choAB.service.post;
 
 import com.example.choAB.core.PostSpecification;
 import com.example.choAB.dto.PostDTO;
+import com.example.choAB.enums.PostStatus;
 import com.example.choAB.model.Post;
 import com.example.choAB.model.User;
 import com.example.choAB.request.AddPostRequest;
@@ -21,7 +22,7 @@ public interface IPostService {
 
     User getUserByPostId(Long postId);
 
-    List<Post> getAllPosts();
+    List<Post> getAllPosts(PostStatus status);
 
     List<Post> getPostByUserId(Long userId);
 

@@ -19,6 +19,7 @@ public class Message {
 
     @Column(name = "timestamp")
     private LocalDateTime timeStamp;
+
     private boolean is_read = false;
 
     @ManyToOne

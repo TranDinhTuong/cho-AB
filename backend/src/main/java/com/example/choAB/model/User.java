@@ -33,6 +33,8 @@ public class User {
     private String phone;
     private Float rating;
 
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.ACTIVE;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -1,9 +1,6 @@
 package com.example.choAB.request;
 
-import com.example.choAB.model.Category;
-import com.example.choAB.model.Job;
-import com.example.choAB.model.Phone;
-import com.example.choAB.model.Vehicle;
+import com.example.choAB.model.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -20,4 +17,9 @@ public class AddPostRequest {
     private Vehicle vehicle;
     private Job job;
     private Phone phone;
+    private Motel motel;
+    private Household household;
+    private Pet pet;
+    private Fashion fashion;
+    private Book book;
 }

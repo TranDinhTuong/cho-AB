@@ -21,4 +21,10 @@ public class PostDTO {
     private UserDto user;
     private JobDTO job;
     private PhoneDTO phone;
+
+    private MotelDTO motel;
+    private FashionDTO fashion;
+    private HouseholdDTO household;
+    private PetDTO pet;
+    private BookDTO book;
 }
