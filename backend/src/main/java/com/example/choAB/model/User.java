@@ -26,7 +26,7 @@ public class User {
     private String email;
     private String password;
 
-    private boolean is_verified;
+    private boolean is_priority = false;
     private LocalDateTime last_login;
     private LocalDateTime register_date;
 
@@ -53,7 +53,8 @@ public class User {
     private List<Post> review_posts;
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_like",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
@@ -61,7 +62,10 @@ public class User {
     )
     private List<Post> posts_like;
 
-    @ManyToMany
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+    )
     @JoinTable(
             name = "user_following", // Tên bảng trung gian
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), // Cột đại diện cho user hiện tại
@@ -70,11 +74,14 @@ public class User {
     private List<User> following;
 
     // List of users that are following this user
-    @ManyToMany(mappedBy = "following")
+    @ManyToMany(mappedBy = "following", fetch = FetchType.LAZY)
     private List<User> followers;
 
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}) //role it phu thuoc vao user , de neu user bi xoa thi role ko bi xoa theo
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}
+    ) //role it phu thuoc vao user , de neu user bi xoa thi role ko bi xoa theo
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Collection<Role> roles = new HashSet<>();

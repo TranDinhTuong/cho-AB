@@ -37,6 +37,7 @@ public class UserService implements IUserService{
 
     @Autowired
     private final RoleRepository roleRepository;
+
     @Override
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -54,7 +55,7 @@ public class UserService implements IUserService{
                     user.setPassword(passwordEncoder.encode(req.getPassword())); //ma hoa mat khau
                     user.setName(req.getName());
                     user.setRoles(Set.of(userRole));
-                    user.set_verified(false);
+                    user.set_priority(false);
                     user.setRegister_date(java.time.LocalDateTime.now());
                     return userRepository.save(user);
                 }).orElseThrow(() -> new ResourceNotFoundException("Oops!" +request.getEmail() +" already exists!"));
@@ -62,7 +63,10 @@ public class UserService implements IUserService{
 
     @Override
     public void deleteUser(Long id) {
-        userRepository.findById(id).ifPresentOrElse(userRepository::delete, () ->{
+        userRepository.findById(id).ifPresentOrElse(it ->{
+            it.setStatus(Status.DELETED);
+            userRepository.save(it);
+        }, () ->{
             throw new ResourceNotFoundException("User not found!");
         });
     }

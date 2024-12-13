@@ -1,5 +1,6 @@
 package com.example.choAB.controller;
 
+import com.example.choAB.dto.NotificationDTO;
 import com.example.choAB.exception.ResourceNotFoundException;
 import com.example.choAB.model.Category;
 import com.example.choAB.model.Notification;
@@ -19,24 +20,26 @@ import java.util.List;
 public class NotificationController {
     private final INotificationService notificationService;
 
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addNotification(@RequestBody AddNotification request){
+    @PostMapping("/{userId}/add")
+    public ResponseEntity<ApiResponse> addNotification(@RequestBody AddNotification request, @PathVariable Long userId){
         try {
-            Notification notification = notificationService.addNotification(request);
-            return ResponseEntity.ok(new ApiResponse("Success", notification));
+            Notification notification = notificationService.addNotification(request, userId);
+            NotificationDTO notificationDTO = notificationService.convertToDTO(notification);
+            return ResponseEntity.ok(new ApiResponse("Success", notificationDTO));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse("Failed: " + e.getMessage(), null));
         }
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getAllNotification(){
+    @GetMapping("/{userId}/all")
+    public ResponseEntity<ApiResponse> getAllNotification(@PathVariable Long userId){
         try {
-            List<Notification> notifications = notificationService.getAllNotifications();
-            if(notifications.isEmpty()){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Failed", "NOT FOUND"));
+            List<Notification> notifications = notificationService.getAllNotifications(userId);
+            List<NotificationDTO> notificationDTOs = notifications.stream().map(e -> notificationService.convertToDTO(e)).toList();
+            if(notificationDTOs.isEmpty()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Success", "NOT FOUND"));
             }
-            return ResponseEntity.ok(new ApiResponse("Success", notifications));
+            return ResponseEntity.ok(new ApiResponse("Success", notificationDTOs));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Failed: " + e.getMessage(), null));
         }

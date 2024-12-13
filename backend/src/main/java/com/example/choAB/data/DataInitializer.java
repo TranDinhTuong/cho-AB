@@ -32,6 +32,7 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
     private final FashionRepository fashionRepository;
     private final BookRepository bookRepository;
     private final PetRepository petRepository;
+    private final MembershipPackageRepository membershipPackageRepository;
 
     private boolean isInitialized = false;
 
@@ -43,8 +44,33 @@ public class DataInitializer implements ApplicationListener<ApplicationEvent> {
             createDefaultRoleIfNotExits(defaultRoles);
             createDefaultUserIfNotExits();
             createDefaultAdminIfNotExits();
+            createDefaultMemberShipPackage();
             createDefaultPost();
         }
+    }
+
+    private void createDefaultMemberShipPackage() {
+        MembershipPackage membershipPackage = new MembershipPackage();
+        membershipPackage.setName("Gói dịch vụ theo tháng");
+        membershipPackage.setDescription("Khi đăng ký gói dịch vụ này, bạn sẽ được sử dụng dịch vụ đăng ưu tiên trong 30 ngày");
+        membershipPackage.setTime("1");
+        membershipPackage.setPrice(BigDecimal.valueOf(100000));
+
+        MembershipPackage membershipPackage1 = new MembershipPackage();
+        membershipPackage1.setName("Gói dịch vụ theo quý");
+        membershipPackage1.setDescription("Khi đăng ký gói dịch vụ này, bạn sẽ được sử dụng dịch vụ đăng ưu tiên trong 3 tháng");
+        membershipPackage1.setTime("3");
+        membershipPackage1.setPrice(BigDecimal.valueOf(200000));
+
+        MembershipPackage membershipPackage2 = new MembershipPackage();
+        membershipPackage2.setName("Gói dịch vụ theo năm");
+        membershipPackage2.setDescription("Khi đăng ký gói dịch vụ này, bạn sẽ được sử dụng dịch vụ đăng ưu tiên trong 12 tháng");
+        membershipPackage2.setTime("12");
+        membershipPackage2.setPrice(BigDecimal.valueOf(1000000));
+
+        membershipPackageRepository.save(membershipPackage);
+        membershipPackageRepository.save(membershipPackage1);
+        membershipPackageRepository.save(membershipPackage2);
     }
 
     private void createDefaultUserIfNotExits() {

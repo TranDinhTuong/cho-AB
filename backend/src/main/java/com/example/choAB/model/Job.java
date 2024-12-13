@@ -30,7 +30,7 @@ public class Job {
     private String experience; // Kinh nghiệm làm việc
     private String certificates; // Chứng chỉ, kỹ năng nếu có
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
 

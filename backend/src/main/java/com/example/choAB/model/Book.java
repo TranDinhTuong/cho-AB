@@ -21,7 +21,7 @@ public class Book {
     private Integer year;     // Năm xuất bản
     private String status;    // Tình trạng (mới, cũ)
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
 }

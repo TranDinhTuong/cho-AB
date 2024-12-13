@@ -19,7 +19,7 @@ public class Pet {
     private Integer age;     // Tuổi của thú cưng
     private String size;     // Kích cỡ (nhỏ, vừa, lớn)
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
 

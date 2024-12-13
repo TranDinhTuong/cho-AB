@@ -22,7 +22,7 @@ public class Phone {
     private String color;      // Màu sắc (Đen, Trắng, Xanh, v.v.)
     private String storage;    // Dung lượng (128GB, 256GB, v.v.)
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
 

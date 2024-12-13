@@ -168,11 +168,14 @@ public class PostService implements IPostService{
                 request.getPrice(),
                 LocalDateTime.now(),
                 request.getLocation(),
-                true,
+                false,
                 category,
                 user,
                 PostStatus.PENDING
         );
+        if(user.is_priority()){
+            post.set_priority(true);
+        }
         return post;
     }
     @Override
@@ -209,12 +212,12 @@ public class PostService implements IPostService{
 
     @Override
     public List<Post> getAllPosts(PostStatus status) {
-        return postRepository.findByStatus(status);
+        return postRepository.findPostsByStatusOrdered(status);
     }
 
     @Override
-    public Page<Post> findAllPosts(Specification<Post> specification, PageRequest pageRequest) {
-        return postRepository.findAll(specification, pageRequest);
+    public List<Post> findAllPosts(Specification<Post> specification) {
+       return postRepository.findAll(specification);
     }
 
     @Override
@@ -225,6 +228,12 @@ public class PostService implements IPostService{
     @Override
     public List<Post> getPostByUserId(Long userId) {
         return postRepository.findByUserId(userId);
+    }
+
+    @Override
+    public List<PostDTO> sortPostByIsPriority(List<Post> posts) {
+
+        return null;
     }
 
     @Override
@@ -301,8 +310,7 @@ public class PostService implements IPostService{
     }
 
     @Override
-    public List<Post> getPostByCategory(String category, int page) {
-        PageRequest pageRequest = PageRequest.of(page, 2);
-        return postRepository.findByCategoryName(category, pageRequest);
+    public List<Post> getPostByCategory(String category) {
+        return postRepository.findByCategoryName(category);
     }
 }

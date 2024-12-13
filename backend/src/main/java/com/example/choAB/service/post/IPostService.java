@@ -26,7 +26,7 @@ public interface IPostService {
 
     List<Post> getPostByUserId(Long userId);
 
-    Page<Post> findAllPosts(Specification<Post> spec , PageRequest pageRequest);
+    List<Post> findAllPosts(Specification<Post> spec);
 
     List<Post> getAllPostsByTitle(String title);
 
@@ -36,5 +36,7 @@ public interface IPostService {
 
     PostDTO convertPostDTO(Post post);
 
-    List<Post> getPostByCategory(String category, int page);
+    List<Post> getPostByCategory(String category);
+
+    List<PostDTO> sortPostByIsPriority(List<Post> posts);
 }

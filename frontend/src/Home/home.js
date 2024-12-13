@@ -23,32 +23,29 @@ import MessageIcon from '@mui/icons-material/Message'; // Biểu tượng tin nh
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import {  Grid, Card,CardContent, CardMedia } from '@mui/material';
 import NoteIcon from '@mui/icons-material/Note';
+import {  Popover, List, ListItem, ListItemText } from '@mui/material';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+
 function Home() {
 
     const [showPassword, setShowPassword] = useState(false);
-
+    // Đăng nhập
     const [showUserTextBox, setShowUserTextBox] = useState(false);
-
     const [showAdminLoginTextBox, setShowAdminLoginTextBox] = useState(false);
     const [showCustomersLoginTextBox, setShowCustomersLoginTextBox] = useState(false);
-    const [showStudentsLoginTextBox, setShowStudentsLoginTextBox] = useState(false);
-    const [showTeachersLoginTextBox, setShowTeachersLoginTextBox] = useState(false);
-
-    const [showPostTextBox, setShowPostTextBox] = useState(false);
-
+    // Tài khoản
     const [Admin_name,setAdminName]=useState('')
     const [Admin_password, setAdminPassword] = useState('')
-
     const [Customers_name,setCustomersName]=useState('')
     const [Customers_password, setCustomersPassword] = useState('')
-
-    const [Teachers_name,setTeachersName]=useState('')
-    const [Teachers_password, setTeachersPassword] = useState('')
-    
-    const [Students_name,setStudentsName]=useState('')
-    const [Students_password, setStudentsPassword] = useState('')
-
-
+    // Đăng kí
+    const [showSignUpTextBox, setShowSignUpTextBox] = useState(false);
+    const [SignUp_name,setSignUpName]=useState('')
+    const [SignUp_email,setSignUpEmail]=useState('')
+    const [SignUp_password, setSignUpPassword] = useState('')
+    const [Noti_SignUp_Success, setNotiSignUpSuccess] = useState('')
+    const [Noti_SignUp_Fail, setNotiSignUpFail] = useState('')
     const navigate = useNavigate();
 
     const UserButton = styled (Button)
@@ -61,7 +58,7 @@ function Home() {
         display: 'flex', // Sử dụng flexbox để căn chỉnh
         alignItems: 'center', 
         fontWeight: 'bold',
-        '&: hover': { backgroundColor: '#BCA9F5'}
+        '&: hover': { backgroundColor: '#87CEEB'}
         
   })
 
@@ -70,12 +67,6 @@ function Home() {
         setShowUserTextBox(true);
         setShowAdminLoginTextBox(false);
         setShowCustomersLoginTextBox(false);
-        setShowTeachersLoginTextBox(false);
-        setShowStudentsLoginTextBox(false);
-    };
-    const handlePostClick = () => {
-      // Hiển thị ô vuông khi bấm nút SignUp
-        setShowPostTextBox(true);
     };
 
     const handleAdminLoginClick = () => {
@@ -83,99 +74,134 @@ function Home() {
         setShowAdminLoginTextBox(true);
         setShowUserTextBox(false);
         setShowCustomersLoginTextBox(false);
-        setShowTeachersLoginTextBox(false);
-        setShowStudentsLoginTextBox(false);
     };
     const handleCustomersLoginClick = () => {
       // Hiển thị ô vuông khi bấm nút SignUp
       setShowCustomersLoginTextBox(true);
       setShowUserTextBox(false);
       setShowAdminLoginTextBox(false);
-      setShowTeachersLoginTextBox(false);
-      setShowStudentsLoginTextBox(false);
   };
-    const handleTeachersLoginClick = () => {
-        // Hiển thị ô vuông khi bấm nút SignUp
-        setShowTeachersLoginTextBox(true);
-        setShowCustomersLoginTextBox(false);
-        setShowAdminLoginTextBox(false);
-        setShowStudentsLoginTextBox(false);
-        setShowUserTextBox(false);
-    };
-    const handleStudentsLoginClick = () => {
-        // Hiển thị ô vuông khi bấm nút SignUp
-        setShowStudentsLoginTextBox(true);
-        setShowAdminLoginTextBox(false);
-        setShowCustomersLoginTextBox(false);
-        setShowTeachersLoginTextBox(false);
-        setShowUserTextBox(false);
-    };
-
-
-
-
+  const handleSignUp = () => {
+    setShowSignUpTextBox(true);
+    setShowUserTextBox(false);
+    setShowAdminLoginTextBox(false);
+    setShowCustomersLoginTextBox(false);
+  } 
     
-    async function authenticate(username, password,role) {
+    // async function authenticate(username, password,role) { 
+    //   try {
+    //     const response = await axios.post('http://localhost:9193/api/v1/auth/login', null, {
+    //       params: {
+    //         username,
+    //         password,
+    //         role,
+    //       }
+    //     });
+    //     const { status, message, data } = response.data;
+    //     if (status === 'success') {
+    //       return { success: true, message, data };
+    //     } else {
+    //       throw new Error(message);
+    //     }
+    //   } catch (error) {
+    //     console.log("fail")
+    //     if (error.response) {
+    //       // Lỗi từ phía máy chủ
+    //       const { status, data } = error.response;
+    //       if (status === 404) {
+    //         // Xử lý lỗi 404 (Not Found)
+    //         console.error('User not found:', data.message);
+    //       } else if (status === 401) {
+    //         // Xử lý lỗi 401 (Unauthorized)
+    //         console.error('Authentication failed:', data.message);
+    //       } else {
+    //         // Xử lý lỗi khác
+    //         console.error('Error:', data.message);
+    //       }
+    //     } else if (error.request) {
+    //       // Lỗi khi gửi yêu cầu
+    //       console.error('Request error:', error.message);
+    //     } else {
+    //       // Lỗi khác
+    //       console.error('Error:', error.message);
+    //     }
     
+    //     return { success: false, message: error.message };
+    //   }
+    // }
+    async function authenticate(email, password) {
       try {
-        const response = await axios.post('http://localhost:8080/user/authenticate', null, {
-          params: {
-            username,
-            password,
-            role,
-          }
-        });
-        const { status, message, data } = response.data;
-        if (status === 'success') {
-          return { success: true, message, data };
-        } else {
-          throw new Error(message);
-        }
-      } catch (error) {
-        console.log("fail")
-        if (error.response) {
-          // Lỗi từ phía máy chủ
-          const { status, data } = error.response;
-          if (status === 404) {
-            // Xử lý lỗi 404 (Not Found)
-            console.error('User not found:', data.message);
-          } else if (status === 401) {
-            // Xử lý lỗi 401 (Unauthorized)
-            console.error('Authentication failed:', data.message);
+          const response = await axios.post('http://localhost:9193/api/v1/auth/login', {
+              email,
+              password,
+          });
+  
+          const {message, data } = response.data;
+          if (message === 'Login Success!') {
+              return { success: true, message, data };
           } else {
-            // Xử lý lỗi khác
-            console.error('Error:', data.message);
+              throw new Error(message);
           }
-        } else if (error.request) {
-          // Lỗi khi gửi yêu cầu
-          console.error('Request error:', error.message);
-        } else {
-          // Lỗi khác
-          console.error('Error:', error.message);
-        }
-    
-        return { success: false, message: error.message };
+      } catch (error) {
+          console.log("fail");
+          if (error.response) {
+              const { status, data } = error.response;
+              if (status === 404) {
+                  console.error('User not found:', data.message);
+              } else if (status === 401) {
+                  console.error('Authentication failed:', data.message);
+              } else {
+                  console.error('Error:', data.message);
+              }
+          } else if (error.request) {
+              console.error('Request error:', error.message);
+          } else {
+              console.error('Error:', error.message);
+          }
+          return { success: false, message: error.message };
       }
     }
-
-
+  
+    async function registerUser(name, email, password) {
+        try {
+            const response = await axios.post('http://localhost:9193/api/v1/users/add', {
+                name,
+                email,
+                password,
+            });
+    
+            const {message, data } = response.data;
+            if (message === 'Create User Success!') {
+                return { success: true, message, data };
+            } else {
+                throw new Error(message);
+            }
+        } catch (error) {
+            console.error("Registration failed");
+            if (error.response) {
+                const { status, data } = error.response;
+                console.error('Error:', data.message);
+            } else {
+                console.error('Error:', error.message);
+            }
+            return { success: false, message: error.message };
+        }
+    }
 
     const handleAdminDangNhap = async() => {
       if (Admin_name && Admin_password )
         {
-            console.log('Student Loged In',Admin_name,Admin_password);
-            //LoginSuccessPage(Admin_password)
-            authenticate(Admin_name,Admin_password,"ADMIN")
+            authenticate(Admin_name,Admin_password)
             .then(result => {
               if (result.success) {
                 
                   console.log('Authentication successful:', result.data.id);
-                  AdminLoginSuccessPage(result.data.id,result.data.username)//sẽ truyền thêm các dữ liệu khác khi đây ko còn là user mà là đối tượng
+                  AdminLoginSuccessPage(result.data.id,Admin_name)//sẽ truyền thêm các dữ liệu khác khi đây ko còn là user mà là đối tượng
                   navigate('/home/admin');
                 
               } else {
                 console.error('Authentication failed:', result.message);
-                alert('Error: Đăng Nhập Thất Bại!');
+                alert('Error: Đăng Nhập Thất Bại!456');
               }
             })
             .catch(error => {
@@ -187,54 +213,22 @@ function Home() {
             alert("Bạn chưa điền đầy đủ dữ liệu!")
             console.log("Thiếu dữ liệu")
         }
-
-
     }
 
-    const handleStudentsDangNhap = (e) => {
-      if (Students_name && Students_password )
+    const handleCustomersDangNhap = (e) => {
+      if (Customers_name && Customers_password )
         {
-            console.log('Student Loged In',Students_name,Students_password);
-            authenticate(Students_name,Students_password,"STUDENT")
-            .then(result => {
-              if (result.success) {
-
-                  console.log('Authentication successful:', result.data.id);
-                  StudentLoginSuccessPage(result.data.id,result.data.name)//sẽ truyền thêm các dữ liệu khác khi đây ko còn là user mà là đối tượng
-                  navigate('/home/students');
-                
-              } else {
-                console.error('Authentication failed:', result.message);
-                alert('Error: Đăng Nhập Thất Bại!');
-              }
-            })
-            .catch(error => {
-              console.error('An unexpected error occurred:', error);
-            });
-        }
-        else
-        {
-            alert("Bạn chưa điền đầy đủ dữ liệu!")
-            console.log("Thiếu dữ liệu")
-        }
-      
-    }
-
-    const handleTeachersDangNhap = (e) => {
-      if (Teachers_name && Teachers_password )
-        {
-            console.log('Teacher Loged In',Teachers_name,Teachers_password);
-            authenticate(Teachers_name,Teachers_password,"TEACHER")
+            authenticate(Customers_name,Customers_password)
             .then(result => {
               if (result.success) {
                 
                   console.log('Authentication successful:', result.data.id);
-                  TeacherLoginSuccessPage(result.data.id,result.data.username)//sẽ truyền thêm các dữ liệu khác khi đây ko còn là user mà là đối tượng
-                  navigate('/home/teachers');
+                  CustomerLoginSuccessPage(result.data.id,result.data.id)//sẽ truyền d các dữ liệu khác khi đây ko còn là user mà là đối tượng
+                  navigate('/home/customer');
                 
               } else {
                 console.error('Authentication failed:', result.message);
-                alert('Error: Đăng Nhập Thất Bại!');
+                alert('Error: Đăng Nhập Thất Bại!123');
               }
             })
             .catch(error => {
@@ -248,7 +242,37 @@ function Home() {
         }
     }
 
-
+    const handleSubmitSignUp = (e) => {
+        if (SignUp_name && SignUp_email && SignUp_password )
+          {
+            registerUser(SignUp_name,SignUp_email,SignUp_password)
+              .then(result => {
+                if (result.success) {
+                    console.log('Authentication successful:', result.data.id);
+                    alert('Đăng kí thành công!');
+                    setSignUpName('');
+                    setSignUpPassword('');
+                    setSignUpEmail('');
+                    setShowSignUpTextBox(false);
+                    setNotiSignUpSuccess(true);
+                    setShowUserTextBox(true);
+                } else {
+                  console.error('Authentication failed:', result.message);
+                  setNotiSignUpFail(true);
+                  // alert('Tên tài khoản đã tồn tại!');
+                }
+              })
+              .catch(error => {
+                console.error('An unexpected error occurred:', error);
+              });
+          }
+          else
+          {
+              alert("Bạn chưa điền đầy đủ dữ liệu!")
+              console.log("Thiếu dữ liệu")
+          }
+      }
+  
     // Trong trang đăng nhập
     function AdminLoginSuccessPage( AdminUserID, AdminName ) {
       // Lưu userId vào localStorage
@@ -258,19 +282,11 @@ function Home() {
 
       // Chuyển hướng đến trang làm việc
     }
-    function StudentLoginSuccessPage( StudentUserID, StudentName ) {
+    function CustomerLoginSuccessPage( CustomerUserID, CustomerUser ) {
       // Lưu userId vào localStorage
-      console.log(StudentUserID)
-      localStorage.setItem('StudentUserID', StudentUserID);
-      localStorage.setItem('StudentName', StudentName);
-
-      // Chuyển hướng đến trang làm việc
-    }
-    function TeacherLoginSuccessPage( TeacherUserID, TeacherName ) {
-      // Lưu userId vào localStorage
-      console.log(TeacherUserID)
-      localStorage.setItem('TeacherUserID', TeacherUserID);
-      localStorage.setItem('TeacherName', TeacherName);
+      console.log(CustomerUserID)
+      localStorage.setItem('CustomerUserID', CustomerUserID);
+      localStorage.setItem('CustomerName', CustomerUser);
 
       // Chuyển hướng đến trang làm việc
     }
@@ -282,8 +298,8 @@ function Home() {
                 // Tắt ô vuông khi nhấn phím Esc
                 setShowUserTextBox(false);
                 setShowAdminLoginTextBox(false);
-                setShowTeachersLoginTextBox(false);
-                setShowStudentsLoginTextBox(false);
+                setShowCustomersLoginTextBox(false);
+                setShowSignUpTextBox(false);
             }
         };
 
@@ -306,42 +322,24 @@ function Home() {
   };
   const handlePost = () => {
     // Hiển thị ô vuông khi bấm nút SignUp
-    navigate('/post');
+    setShowUserTextBox(true);
   };
   const handleMenuClose = () => {
       setAnchorEl(null);
   };
-  const handleCardClick = (id) => {
-    // Chuyển hướng đến trang thông tin chi tiết của sản phẩm
-    // Giả sử bạn đang sử dụng react-router để điều hướng
-    navigate(`/chi_tiet/${id}`);
-};
-  const items = [
+
+
+const items = [
     { name: 'Xe cộ', image: '/xe_co.png' },
-    { name: 'Điện tử', image: '/dien_tu.png' },
-    { name: 'Gia dụng', image: '/gia_dung.png' },
-    { name: 'Đồ cho bé', image: '/do_cho_be.png' },
+    { name: 'Điện thoại', image: '/dien_tu.png' },
+    { name: 'Đồ gia dụng', image: '/gia_dung.png' },
+    { name: 'Phòng trọ', image: '/phong_tro.png' },
     { name: 'Thú cưng', image: '/thu_cung.png' },
-    { name: 'Thực phẩm', image: '/thuc_pham.png' },
-    { name: 'Văn phòng', image: '/van_phong.png' },
-    { name: 'Việc làm', image: 'viec_lam.png' },
+    { name: 'Sách', image: '/sach.png' },
+    { name: 'Việc làm', image: '/viec_lam.png' },
     { name: 'Thời trang', image: '/thoi_trang.png' },
-    { name: 'Cho tặng', image: '/cho_tang.png' },
 ];
-const listings = [
-  { id: 1, name: 'Điện thoại Samsung Galaxy S21', image: '/sp1.png', price: '12.000.000 VNĐ' },
-  { id: 2, name: 'Xe máy Honda SH 2020', image: '/sp2.png', price: '70.000.000 VNĐ' },
-  { id: 3, name: 'Máy tính xách tay Dell XPS 13', image: '/sp3.png', price: '25.000.000 VNĐ' },
-  { id: 4, name: 'Tủ lạnh Samsung 450L', image: '/sp4.png', price: '15.000.000 VNĐ' },
-  { id: 5, name: 'Máy ảnh Canon EOS M50', image: '/sp5.png', price: '18.000.000 VNĐ' },
-  { id: 6, name: 'Tai nghe Sony WH-1000XM4', image: '/sp6.png', price: '7.000.000 VNĐ' },
-  { id: 7, name: 'Bàn phím cơ Logitech G Pro', image: '/sp7.png', price: '3.000.000 VNĐ' },
-  { id: 8, name: 'Ghế gaming Corsair', image: '/sp8.png', price: '4.500.000 VNĐ' },
-  { id: 9, name: 'Đồng hồ thông minh Apple Watch', image: '/sp9.png', price: '10.000.000 VNĐ' },
-  { id: 10, name: 'Máy giặt LG 8kg', image: '/sp10.png', price: '8.000.000 VNĐ' },
-  { id: 11, name: 'Điện thoại iPhone 12', image: '/sp11.png', price: '15.000.000 VNĐ' },
-  { id: 12, name: 'Laptop HP Pavilion', image: '/sp12.png', price: '22.000.000 VNĐ' },
-];
+
 const [isExpanded, setIsExpanded] = useState(false);
 
 const toggleExpand = () => {
@@ -382,6 +380,143 @@ const aboutLinks = [
   "Truyền thông",
   "Blog"
 ];
+
+
+const SearchComponent = () => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate();
+  
+    const handleSearch = (event) => {
+      event.preventDefault();
+      if (searchTerm) {
+        navigate(`/search?title=${encodeURIComponent(searchTerm)}`);
+      }
+    };
+  
+    return (
+      <Box sx={{ flexGrow: 2, display: 'flex', justifyContent: 'center' }}>
+        <form onSubmit={handleSearch}>
+          <TextField 
+            variant="outlined" 
+            placeholder="Tìm kiếm..." 
+            size="small" 
+            sx={{ bgcolor: 'white', borderRadius: 1, width: '500px' }} 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </form>
+      </Box>
+    );
+  };
+function ProductList() {
+  const [AllPost, setAllPost] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(12);
+  const [imageUrls, setImageUrls] = useState({}); // Trạng thái để lưu trữ URL hình ảnh
+  const navigate = useNavigate();
+
+  const fetchPost = async () => {
+      try {
+          const response = await axios.get('http://localhost:9193/api/v1/posts/all?status=APPROVED');
+          if (response.data.message === "Success") {
+              setAllPost(response.data.data);
+              // Gọi hàm để tải hình ảnh cho từng bài đăng
+              fetchImages(response.data.data);
+          }
+      } catch (error) {
+          console.error("Error fetching posts:", error);
+          alert('Lấy dữ liệu thất bại');
+      }
+  };
+
+  const fetchImages = async (posts) => {
+      const urls = {};
+      await Promise.all(posts.map(async (post) => {
+          try {
+              const response = await axios.get(`http://localhost:9193/api/v1/images/image/download/post/${post.id}`);
+              if (response.data.message === "Success!") {
+                  urls[post.id] = `http://localhost:9193${response.data.data[0].downloadUrl}`;
+              }
+          } catch (error) {
+              console.error(`Error fetching image for post ${post.id}:`, error);
+          }
+      }));
+      setImageUrls(urls); // Cập nhật trạng thái với URL hình ảnh đã tải
+  };
+
+  useEffect(() => {
+      fetchPost();
+  }, []);
+
+  const handleCardClick = (id) => {
+      navigate(`/chi_tiet/${id}`);
+  };
+
+  const handleLoadMore = () => {
+      setVisibleCount((prevCount) => prevCount + 12);
+  };
+
+  function formatPrice(formattedPrice) {
+      // const formattedPrice = price * 1000;
+      return new Intl.NumberFormat('vi-VN', {
+          minimumFractionDigits: 0,
+      }).format(formattedPrice) + ' VNĐ';
+  }
+
+  return (
+      <Box sx={{ bgcolor: '#FFFFFF', height: 'auto', width: '60%', mx: 'auto', borderRadius: '15px', mt: 2, padding: 2, boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)' }}>
+          <Typography variant="h5" gutterBottom>
+              Tin đăng dành cho bạn
+          </Typography>
+          <Grid container spacing={2}>
+              {AllPost.slice(0, visibleCount).map((post) => (
+                  <Grid item xs={12} sm={6} md={3} key={post.id}>
+                      <Button onClick={() => handleCardClick(post.id)} sx={{ padding: 0, width: '100%' }}>
+                          <Card sx={{ height: '100%', transition: 'transform 0.2s, box-shadow 0.2s', 
+                              '&:hover': {
+                                  transform: 'scale(1.05)', 
+                                  boxShadow: '0 8px 30px rgba(0, 0, 0, 0.2)', 
+                              },
+                          }}>
+                              <CardMedia 
+                                  component="img" 
+                                  height="150" 
+                                  alt={post.title} 
+                                  image={imageUrls[post.id]} // Sử dụng URL từ trạng thái
+                              />
+                              <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', height: '100%' }}>
+                                  <Typography variant="subtitle1" component="div" noWrap sx={{ fontSize: '0.9rem', flexShrink: 0 }}>
+                                      {post.title} 
+                                  </Typography>
+                                  <Typography variant="body2" color="black">
+                                      {post.category === 'Viec Lam' 
+                                          ? `Lương: ${formatPrice(post.job.maxSalary)}` 
+                                          : `Giá: ${formatPrice(post.price)}`}
+                                  </Typography>
+                              </CardContent>
+                          </Card>
+                      </Button>
+                  </Grid>
+              ))}
+          </Grid>
+          {visibleCount < AllPost.length && (
+              <Button onClick={handleLoadMore}
+                  style={{
+                      padding: '10px 15px',
+                      fontSize: '16px',
+                      backgroundColor: 'transparent',
+                      color: '#007bff',
+                      border: 'none ',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                  }}
+              >
+                  Xem thêm
+              </Button>
+          )}
+      </Box>
+  );
+}
+
   return (
     <div className="App" style={{ 
         // backgroundImage: 'url("/img2.jpg")', // Sử dụng đường dẫn từ thư mục public
@@ -398,34 +533,28 @@ const aboutLinks = [
                 <Toolbar sx={{ bgcolor: '#66B2FF' }}>
                     
                     <Button onClick={handleHome}>
-                    <img src="/Avatar.png" alt="Icon" width="80" height="40" />
+                    <img src="/Avatar.png" alt="Icon" width="60" height="40" />
                     <Typography variant='h5' style={{ fontWeight: 'bold' }} align='left' sx={{ flexGrow: 1 }} color='#FFFFFF'> CHỢ AB </Typography>
                     </Button>
                     <Button onClick={handleMenuClick} sx={{ color: 'white', fontSize: '1.25rem', fontWeight: 'bold' }}> 
                     <img src={"/danh_muc.png"} alt="Danh muc" style={{ width: '40px', height: '25px', marginRight: '5px' }} />DANH MỤC </Button>
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                        <MenuItem onClick={handleMenuClose}>Xe cộ</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Điện tử</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Gia dụng</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Đồ cho bé</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Thú cưng</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Thực phẩm</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Văn phòng</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Việc làm</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Thời trang</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Cho tặng</MenuItem>
+                        <MenuItem onClick={()=> navigate('/search_category?category=Xe Cộ')}>Xe cộ</MenuItem>
+                        <MenuItem onClick={()=> navigate('/search_category?category=Điện thoại')}>Điện thoại</MenuItem>
+                        <MenuItem onClick={()=> navigate('/search_category?category=Đồ gia dụng')}>Đồ gia dụng</MenuItem>
+                        <MenuItem onClick={()=> navigate('/search_category?category=Phòng trọ')}>Phòng trọ</MenuItem>
+                        <MenuItem onClick={()=> navigate('/search_category?category=Thú cưng')}>Thú cưng</MenuItem>
+                        <MenuItem onClick={()=> navigate('/search_category?category=Sách')}>Sách</MenuItem>
+                        <MenuItem onClick={()=> navigate('/search_category?category=Việc làm')}>Việc làm</MenuItem>
+                        <MenuItem onClick={()=> navigate('/search_category?category=Thời trang')}>Thời trang</MenuItem>
                     </Menu>
-                    <Box sx={{ flexGrow: 2, display: 'flex', justifyContent: 'center' }}>
-                        <TextField 
-                            variant="outlined" 
-                            placeholder="Tìm kiếm..." 
-                            size="small" 
-                            sx={{ bgcolor: 'white', borderRadius: 1, width: '500px'}} 
-                        />
-                    </Box>
-                    <Button sx={{ color: 'white', marginLeft: 2 }}><NotificationsIcon /></Button>
-                    <Button sx={{ color: 'white', marginLeft: 2 }}><MessageIcon /></Button>
-                    <Button sx={{ color: 'white', marginLeft: 2, marginRight: 1 }}><ShoppingCartIcon /></Button>
+                    <SearchComponent/>
+                    <Button sx={{ color: 'white', marginLeft: 2, width:'50px' }} onClick={handlePost}><NotificationsIcon />
+                    </Button>
+    
+                    <Button sx={{ color: 'white', marginLeft: 2 }} onClick={handlePost}><MessageIcon />                               
+                    </Button>
+                    <Button sx={{ color: 'white', marginLeft: 2, marginRight: 1 }} onClick={handlePost} ><ShoppingBagIcon /></Button>
                     <Button variant='outlined' color={'inherit'} onClick={handlePost} sx={{ 
                         fontSize: '1.0rem', 
                         marginRight: '10px', 
@@ -453,14 +582,14 @@ const aboutLinks = [
             <Box sx={{ bgcolor: '#FFFFFF', height: '25%', width: '60%', borderRadius: '15px', mx: 'auto', mt: 2, padding: 2,boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)' }}>
                 <Grid container spacing={1} justifyContent="center">
                     {items.map((item, index) => (
-                        <Grid item xs={12} sm={2.4} key={index}>
+                        <Grid item xs={12} sm={3} key={index}>
                             <Card sx={{ maxWidth: '55%', margin: '0 auto',transition: 'transform 0.2s, box-shadow 0.2s', 
                                 '&:hover': {
                                     transform: 'scale(1.05)', 
                                     boxShadow: '0 8px 30px rgba(0, 0, 0, 0.2)', 
                                   }, }}>
                                 <Button 
-                                // onClick={() => alert(`Bạn đã nhấn ${item.name}`)} 
+                                onClick={() => navigate(`/search_category?category=${item.name}`)} 
                                 sx={{ padding: 0, width: '100%', display: 'flex', flexDirection: 'column' }}>
                                     <CardMedia component="img" sx={{ objectFit: 'cover', height: '63px' }} image={item.image} alt={item.name} />
                                     <CardContent sx={{ display: 'flex', justifyContent: 'center', padding: '0', height: '20px' }}>
@@ -472,34 +601,9 @@ const aboutLinks = [
                     ))}
                 </Grid>
             </Box>
-            <Box sx={{ bgcolor: '#FFFFFF', height: '60%', width: '60%', mx: 'auto',borderRadius: '15px', mt: 2, padding: 2.,boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)' }}>
-                    <Typography variant="h5" gutterBottom>
-                        Tin đăng dành cho bạn
-                    </Typography>
-                    <Grid container spacing={2}>
-                      {listings.map((listing) => (
-                          <Grid item xs={12} sm={6} md={3} key={listing.id}>
-                            <Button onClick={() => handleCardClick(listing.id)} sx={{ padding: 0, width: '100%' }}>
-                              <Card sx={{ height: '100%',transition: 'transform 0.2s, box-shadow 0.2s', 
-                                '&:hover': {
-                                    transform: 'scale(1.05)', 
-                                    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.2)', 
-                                  }, }}>
-                                  <CardMedia component="img" height="180" image={listing.image} alt={listing.name} />
-                                  <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', height: '100%' }}>
-                                      <Typography variant="subtitle1" component="div" noWrap sx={{ fontSize: '0.9rem', flexShrink: 0 }}>
-                                          {listing.name}
-                                      </Typography>
-                                      <Typography variant="body2" color="red" >
-                                          {listing.price}
-                                      </Typography>
-                                  </CardContent>
-                              </Card>
-                            </Button>
-                          </Grid>
-                      ))}
-                  </Grid>
-            </Box>
+            
+            <ProductList />
+
     <Box sx={{  width: '60%', mx: 'auto' }}>
     <section style={{ padding: '20px', textAlign: 'left' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>
@@ -614,30 +718,30 @@ const aboutLinks = [
 
 
         {/* </Box> */}
-    {/* {showUserTextBox && (
+    {showUserTextBox && (
 <>
-            <div
-                style={{
-                  position: 'fixed',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)', // Màu nền overlay (có thể điều chỉnh)
-                  zIndex: 0,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backdropFilter: 'blur(8px)', // Sử dụng backdrop-filter để làm mờ nền
-                }}
-              />
+      <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(255, 255, 255, 0.2)', // Màu nền overlay (có thể điều chỉnh)
+            zIndex: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backdropFilter: 'blur(8px)', // Sử dụng backdrop-filter để làm mờ nền
+          }}
+        />
         <div style={{ 
           position: 'absolute',
           border: '0px solid #380B61', // Viền nằm trong nút
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          backgroundImage: 'url("/gradient.jpg")', 
+          backgroundColor : '#B3D9FF',
           backgroundSize: 'cover',
           padding: '50px',
           borderRadius: '10px',
@@ -649,17 +753,30 @@ const aboutLinks = [
                 <Typography variant='h2' gutterBottom></Typography>
                 <Typography variant='h2' gutterBottom></Typography>
 
-
-                <UserButton onClick={handleAdminLoginClick} gutterBottom > Admin </UserButton>
+                <UserButton onClick={handleAdminLoginClick} gutterBottom > Quản Lý </UserButton>
                 <UserButton onClick={handleCustomersLoginClick} gutterBottom  > Khách Hàng </UserButton>
-                <UserButton onClick={handleStudentsLoginClick} gutterBottom > Quản Lý </UserButton>
+                <Button 
+                    onClick={handleSignUp} // Hàm xử lý sự kiện đăng ký
+                    style={{ 
+                        fontSize: '0.8rem', 
+                        marginTop: '10px', 
+                        textTransform: 'none',
+                        color: 'inherit', // Màu mặc định
+                        backgroundColor: 'transparent', // Không có màu nền
+                        border: 'none', // Không có viền
+                        transition: 'color 0.3s', // Hiệu ứng chuyển màu
+                        padding: 0, // Bỏ padding nếu cần
+                    }} 
+                    onMouseOver={(e) => e.currentTarget.style.color = 'red'} // Đổi màu khi hover
+                    onMouseOut={(e) => e.currentTarget.style.color = 'inherit'} // Đổi lại màu khi không hover
+                >
+                    Bạn chưa có tài khoản ?
+                </Button>
             </Stack>      
         </div>
         </>
     )
-   
     }
-
 
     {showAdminLoginTextBox && (
       <>
@@ -683,54 +800,61 @@ const aboutLinks = [
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            backgroundImage: 'url("/gradient4.jpg")', 
+            backgroundColor : '#B3D9FF',
             backgroundSize: 'cover',
             padding: '100px 100px',
             borderRadius: '10px',
             boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
           }}>
-              <Typography variant='h5' style={{fontWeight:'bold'}}>Admin User</Typography>
-              <Typography gutterBottom variant='h5'></Typography>
-              <TextField label='Username:' variant='standard' fullWidth required onChange={(e)=>setAdminName(e.target.value)}/>
-              <TextField
-                  label="Password:"
-                  variant="standard"
-                  fullWidth
-                  required
-                  type={showPassword ? 'text' : 'password'}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              <Typography gutterBottom variant='h2'></Typography>
-              <Button startIcon={<SendIcon/> } variant='contained' color={'inherit'} onClick={handleAdminDangNhap} style={{ 
-                fontSize: '1.0rem', // Kích thước của nút
-                marginRight: '10px', // Khoảng cách so với mép màn hình bên phải
-                color: '#380B61', // Màu chữ của nút
-                backgroundColor: '#FFFFFF', // Màu nền của nút
-                border: '0px solid #FFFFFF', // Viền nằm trong nút
-                borderRadius: '9px', // Bo tròn góc của viền
-                padding: '7px 25px',
-                display: 'flex', // Sử dụng flexbox để căn chỉnh
-                alignItems: 'center', 
-                fontWeight: 'bold',
-              }}>Đăng Nhập</Button>
+          <Typography variant='h5' style={{fontWeight:'bold'}}>Quản Lý</Typography>
+          <Typography gutterBottom variant='h5'></Typography>
+          <TextField label='Tên tài khoản:' variant='standard' 
+              fullWidth 
+              required 
+              onChange={(e)=>setAdminName(e.target.value)} 
+              InputLabelProps={{style: { color: '#000000' }}}/>
+          <TextField
+              label="Mật khẩu:"
+              variant="standard"
+              fullWidth
+              required
+              type={showPassword ? 'text' : 'password'}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              InputLabelProps={{
+                style: { color: '#000000' }, // Thay đổi màu sắc của nhãn ở đây
+            }}
+            />
+          <Typography gutterBottom variant='h2'></Typography>
+          <Button startIcon={<SendIcon/> } variant='contained' color={'inherit'} onClick={handleAdminDangNhap} style={{ 
+            fontSize: '1.0rem', // Kích thước của nút
+            marginRight: '10px', // Khoảng cách so với mép màn hình bên phải
+            color: '#000000', // Màu chữ của nút
+            backgroundColor: '#87CEEB', // Màu nền của nút
+            border: '0px solid #87CEEB', // Viền nằm trong nút
+            borderRadius: '9px', // Bo tròn góc của viền
+            padding: '7px 25px',
+            display: 'flex', // Sử dụng flexbox để căn chỉnh
+            alignItems: 'center', 
+            fontWeight: 'bold',
+          }}>Đăng Nhập</Button>
         </div>
       </>
 
     )}
 
-    {showTeachersLoginTextBox &&(
+    {showCustomersLoginTextBox &&(
       <>
           <div
           style={{
@@ -740,7 +864,6 @@ const aboutLinks = [
             right: 0,
             bottom: 0,
             backgroundColor: 'rgba(255, 255, 255, 0.2)', // Màu nền overlay (có thể điều chỉnh)
-    
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -752,22 +875,26 @@ const aboutLinks = [
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            backgroundImage: 'url("/gradient4.jpg")', 
+            backgroundColor : '#B3D9FF',
             backgroundSize: 'cover',
             padding: '100px 100px',
             borderRadius: '10px',
             boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
           }}>
-            <Typography variant='h5' style={{fontWeight:'bold'}}>Teacher User</Typography>
+            <Typography variant='h5' style={{fontWeight:'bold'}}>Khách hàng</Typography>
             <Typography gutterBottom variant='h5'></Typography>
-            <TextField label='Username:' variant='standard' fullWidth required onChange={(e)=>setTeachersName(e.target.value)}/>
+            <TextField label='Tên tài khoản:' variant='standard' 
+              fullWidth 
+              required 
+              onChange={(e)=>setCustomersName(e.target.value)} 
+              InputLabelProps={{style: { color: '#000000' }}}/>
             <TextField
-                  label="Password:"
+                  label="Mật khẩu:"
                   variant="standard"
                   fullWidth
                   required
                   type={showPassword ? 'text' : 'password'}
-                  onChange={(e) => setTeachersPassword(e.target.value)}
+                  onChange={(e) => setCustomersPassword(e.target.value)}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -780,14 +907,17 @@ const aboutLinks = [
                       </InputAdornment>
                     ),
                   }}
+                  InputLabelProps={{
+                    style: { color: '#000000' }, // Thay đổi màu sắc của nhãn ở đây
+                }}
                 />
             <Typography gutterBottom variant='h2'></Typography>
-            <Button startIcon={<SendIcon/> } variant='contained' color={'inherit'} onClick={handleTeachersDangNhap} style={{ 
+            <Button startIcon={<SendIcon/> } variant='contained' color={'inherit'} onClick={handleCustomersDangNhap} style={{ 
               fontSize: '1.0rem', // Kích thước của nút
               marginRight: '10px', // Khoảng cách so với mép màn hình bên phải
-              color: '#380B61', // Màu chữ của nút
-              backgroundColor: '#FFFFFF', // Màu nền của nút
-              border: '0px solid #FFFFFF', // Viền nằm trong nút
+              color: '#000000', // Màu chữ của nút
+              backgroundColor: '#87CEEB', // Màu nền của nút
+              border: '0px solid #87CEEB', // Viền nằm trong nút
               borderRadius: '9px', // Bo tròn góc của viền
               padding: '7px 25px',
               display: 'flex', // Sử dụng flexbox để căn chỉnh
@@ -797,81 +927,115 @@ const aboutLinks = [
         </div>
 </>
     )}
-
-    {showStudentsLoginTextBox && (
-      <>
-      <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)', // Màu nền overlay (có thể điều chỉnh)
-   
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backdropFilter: 'blur(8px)', // Sử dụng backdrop-filter để làm mờ nền
-      }}
-    />
-        <div style={{ 
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundImage: 'url("/gradient4.jpg")', 
-            backgroundSize: 'cover',
-            padding: '100px 100px',
-            borderRadius: '10px',
-            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
-            }}>
-            <Typography variant='h5' style={{fontWeight:'bold'}}>Student User</Typography>
-            <Typography gutterBottom variant='h5'></Typography>
-                <TextField  label='Username:' variant='standard' fullWidth required onChange={(e)=>setStudentsName(e.target.value)}/>
+    {showSignUpTextBox &&(
+          <>
+              <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.2)', // Màu nền overlay (có thể điều chỉnh)
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backdropFilter: 'blur(8px)', // Sử dụng backdrop-filter để làm mờ nền
+              }}
+            />
+            <div style={{ 
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor : '#B3D9FF',
+                backgroundSize: 'cover',
+                padding: '100px 100px',
+                borderRadius: '10px',
+                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+              }}>
+                <Typography variant='h5' style={{fontWeight:'bold'}}>Đăng kí tài khoản</Typography>
+                <Typography gutterBottom variant='h5'></Typography>
+                <TextField label='Tên người dùng:' variant='standard' 
+                  fullWidth 
+                  required 
+                  onChange={(e)=>setSignUpName(e.target.value)} 
+                  InputLabelProps={{style: { color: '#000000' }}}/>
+                <TextField label='Tên tài khoản:' variant='standard' 
+                  fullWidth 
+                  required 
+                  onChange={(e)=>setSignUpEmail(e.target.value)} 
+                  InputLabelProps={{style: { color: '#000000' }}}/>
                 <TextField
-                  label="Password:"
-                  variant="standard"
-                  fullWidth
-                  required
-                  type={showPassword ? 'text' : 'password'}
-                  onChange={(e) => setStudentsPassword(e.target.value)}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                      label="Mật khẩu:"
+                      variant="standard"
+                      fullWidth
+                      required
+                      type={showPassword ? 'text' : 'password'}
+                      onChange={(e) => setSignUpPassword(e.target.value)}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                            >
+                              {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                      InputLabelProps={{
+                        style: { color: '#000000' }, // Thay đổi màu sắc của nhãn ở đây
+                    }}
+                    />
                 <Typography gutterBottom variant='h2'></Typography>
-                <Button startIcon={<SendIcon/> } variant='contained' color={'inherit'} onClick={handleStudentsDangNhap} style={{ 
+                <Button startIcon={<SendIcon/> } variant='contained' color={'inherit'} onClick={handleSubmitSignUp} style={{ 
                   fontSize: '1.0rem', // Kích thước của nút
                   marginRight: '10px', // Khoảng cách so với mép màn hình bên phải
-                  color: '#380B61', // Màu chữ của nút
-                  backgroundColor: '#FFFFFF', // Màu nền của nút
-                  border: '0px solid #FFFFFF', // Viền nằm trong nút
+                  color: '#000000', // Màu chữ của nút
+                  backgroundColor: '#87CEEB', // Màu nền của nút
+                  border: '0px solid #87CEEB', // Viền nằm trong nút
                   borderRadius: '9px', // Bo tròn góc của viền
                   padding: '7px 25px',
                   display: 'flex', // Sử dụng flexbox để căn chỉnh
                   alignItems: 'center', 
                   fontWeight: 'bold',
-                }}>Đăng Nhập</Button>
-        </div>
-        </>
-    )} */}
-
-    {/* <Box mt={20}> 
-
-      <Typography variant='h1' color='#FFFFFF' gutterBottom style={{ fontWeight: 'bold' }} >TRANG CHỦ</Typography>
-      <Typography variant='h2' color='#FFFFFF' style={{ fontWeight: 'bold' }}>HO CHI MINH HOGWARTS UNIVERSITY </Typography>
-      
-    </Box> */}
+                }}>Đăng Kí</Button>
+            </div>
+    </>
+    )}
+        {Noti_SignUp_Fail &&(
+          <>
+              <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.2)', // Màu nền overlay (có thể điều chỉnh)
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backdropFilter: 'blur(8px)', // Sử dụng backdrop-filter để làm mờ nền
+              }}
+            />
+            <div style={{ 
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor : '#B3D9FF',
+                backgroundSize: 'cover',
+                padding: '100px 100px',
+                borderRadius: '10px',
+                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+              }}>
+                <Typography variant='h5' style={{fontWeight:'bold'}}>Đăng kí thất bại. Tài khoản đã tồn tại.</Typography>
+            </div>
+    </>
+    )}
     </div>
   );
 }

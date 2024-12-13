@@ -18,7 +18,7 @@ public class Motel {
     private String area;  // Diện tích
     private Double deposit;  // Tiền cọc
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
 }

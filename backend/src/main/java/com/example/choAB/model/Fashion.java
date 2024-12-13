@@ -19,7 +19,7 @@ public class Fashion {
     private String type;     // Loại sản phẩm (nam, nữ)
     private String status;   // Tình trạng (mới, cũ)
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
 }

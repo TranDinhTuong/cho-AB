@@ -7,6 +7,7 @@ import com.example.choAB.enums.PostStatus;
 import com.example.choAB.exception.ResourceNotFoundException;
 import com.example.choAB.model.Post;
 import com.example.choAB.model.User;
+import com.example.choAB.repository.UserRepository;
 import com.example.choAB.request.AddPostRequest;
 import com.example.choAB.request.UpdatePostRequest;
 import com.example.choAB.response.ApiResponse;
@@ -63,23 +64,34 @@ public class PostController {
     }
 
 
+    /**
+     * @param ids
+     * @param isApproved
+     * @param id
+     * @return http://localhost:9193/api/v1/posts/review/{id}/{isApproved}
+     */
+
     //@PreAuthorize(value = "hasRole('ROLE_ADMIN')")
-    @PostMapping("/review/{isApproved}")
+    @PostMapping("/review/{id}/{isApproved}")
     public ResponseEntity<ApiResponse> reviewPosts(@RequestBody Map<String, Object> ids,
                                                    @PathVariable boolean isApproved,
-                                                   HttpServletRequest httpRequest) {
+                                                   @PathVariable Long id) {
         try {
-            String token = httpRequest.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7); // Bỏ phần "Bearer " khỏi token
-            }
+//            String token = httpRequest.getHeader("Authorization");
+//            if (token != null && token.startsWith("Bearer ")) {
+//                token = token.substring(7); // Bỏ phần "Bearer " khỏi token
+//            }
             //String username = jwtUtils.getUsernameFromToken(token);
+            User user = userService.getUserById(id);
 
-            List<Long> id = (List<Long>) ids.get("ids");
+            if(user.getRoles().stream().findFirst().equals("ROLE_ADMIN") ) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse("You are not allowed to do this action", null));
+            }
+            List<Long> idss = (List<Long>) ids.get("ids");
             if (isApproved) {
-                postService.approvePost(id, "username");
+                postService.approvePost(idss, user.getEmail());
             } else {
-                postService.rejectPost(id, "username");
+                postService.rejectPost(idss, user.getEmail());
             }
             return ResponseEntity.ok(new ApiResponse("Success", null));
         } catch (Exception e) {
@@ -88,9 +100,9 @@ public class PostController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getAllPosts() {
+    public ResponseEntity<ApiResponse> getAllPosts(@RequestParam String status) {
         try {
-            List<Post> posts = postService.getAllPosts(PostStatus.APPROVED);
+            List<Post> posts = postService.getAllPosts(PostStatus.valueOf(status));
             List<PostDTO> postDTOs = posts.stream().map(element -> postService.convertPostDTO(element)).toList();
             if (posts.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("No product found ", null));
@@ -100,6 +112,7 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
         }
     }
+
 
     @GetMapping("/post/{id}/post")
     public ResponseEntity<ApiResponse> getPostById(@PathVariable Long id) {
@@ -115,6 +128,7 @@ public class PostController {
     @GetMapping("/{userId}/post")
     public ResponseEntity<ApiResponse> getPostByUserId(@PathVariable Long userId) {
         try {
+
             List<Post> posts = postService.getPostByUserId(userId);
             if (posts.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("No product found ", null));
@@ -133,15 +147,14 @@ public class PostController {
                                                                      @RequestParam(value = "title", required = false) String title,
                                                                      @RequestParam(value = "minPrice", required = false) Long minPrice,
                                                                      @RequestParam(value = "maxPrice", required = false) Long maxPrice,
-                                                                     @RequestParam(value = "location", required = false) String location,
-                                                                     @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
+                                                                     @RequestParam(value = "location", required = false) String location) {
         try {
             Specification<Post> spec = Specification.where(postSpecification.hasCategory(category))
                     .and(postSpecification.hasTitle(title))
                     .and(postSpecification.hasPriceBetween(minPrice, maxPrice))
                     .and(postSpecification.hasLocation(location));
 
-            Page<Post> posts = postService.findAllPosts(spec, PageRequest.of(page, 2));
+            List<Post> posts = postService.findAllPosts(spec);
             List<PostDTO> postDTOs = posts.stream().map((element) -> postService.convertPostDTO(element)).toList();
             if (posts.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("No product found ", null));
@@ -165,11 +178,10 @@ public class PostController {
 
     @GetMapping("/post/{category}/user")
     public ResponseEntity<ApiResponse> getUserByPortId(
-            @PathVariable String category,
-            @RequestParam(value = "page", required = false, defaultValue = "0") int page
+            @PathVariable String category
     ) {
         try {
-            List<Post> posts= postService.getPostByCategory(category, page);
+            List<Post> posts= postService.getPostByCategory(category);
             List<PostDTO> postDTOs = posts.stream().map((element) -> postService.convertPostDTO(element)).toList();
             return ResponseEntity.ok(new ApiResponse("Success", postDTOs));
         } catch (Exception e) {
@@ -179,8 +191,7 @@ public class PostController {
 
     @GetMapping("/post")
     public ResponseEntity<ApiResponse> getAllPostsByTitle(
-            @RequestParam String title,
-            @RequestParam(value = "page", required = false, defaultValue = "0") int page
+            @RequestParam String title
     ) {
         try {
             List<Post> posts = postService.getAllPostsByTitle(title);

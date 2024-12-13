@@ -23,7 +23,7 @@ public class Vehicle {
     private String color;         // Màu sắc
     private int mileage;          // Số km đã đi được
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 

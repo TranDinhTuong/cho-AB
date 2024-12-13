@@ -89,8 +89,9 @@ public class UserController {
         }catch (Exception  e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
         }
-
     }
+
+
 
     @GetMapping("/conversation/id")
     public ResponseEntity<ApiResponse> findConversationIdByUser1IdAndUser2Id(@RequestParam Long user1Id, @RequestParam Long user2Id) {
